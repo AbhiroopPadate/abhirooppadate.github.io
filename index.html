@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microinteractions: Flip Card & Parallax Card</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="container" id="main">
+        <h1>Microinteractions</h1>
+
+        <section class="section" aria-labelledby="flip-card-title">
+            <h2 id="flip-card-title">A. Accessible 3D Flip Card</h2>
+            <div class="flip-card" data-flip-card>
+                <div class="flip-card__inner" aria-live="polite">
+                    <div class="flip-card__face flip-card__front" aria-label="Front of card">
+                        <img src="./Mounts.jpeg" alt="Mountain landscape" class="flip-card__image">
+                        <div class="flip-card__content">
+                            <h3 class="flip-card__title">Explore the Alps</h3>
+                            <p class="flip-card__text">Plan your next alpine adventure.</p>
+                            <button class="flip-card__toggle" type="button"
+                                aria-expanded="false"
+                                aria-controls="alps-card-back"
+                                data-flip-toggle>
+                                More details
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flip-card__face flip-card__back" id="alps-card-back" aria-label="Back of card" tabindex="-1" data-flip-back>
+                        <div class="flip-card__back-content">
+                            <h3>Trip Details</h3>
+                            <p>7-day guided hikes with scenic train rides. Best season: July–September.</p>
+                            <ul class="details-list">
+                                <li>Difficulty: Moderate</li>
+                                <li>Altitude: up to 3,000 m</li>
+                                <li>Group size: 8–12</li>
+                            </ul>
+                            <div class="actions">
+                                <a href="#" class="btn btn-primary">Book now</a>
+                                <button class="btn btn-ghost" type="button" data-flip-close>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="hint">Tip: Activate with keyboard (Enter/Space). Press Esc to close. Tab is trapped while open.</p>
+        </section>
+
+        <section class="section" aria-labelledby="parallax-card-title">
+            <h2 id="parallax-card-title">B. Hover Parallax Card with CTA Reveal</h2>
+            <article class="parallax-card" data-parallax-card>
+                <div class="parallax-card__media" aria-hidden="true">
+                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" alt="Ocean waves at sunset">
+                    <div class="parallax-card__glow"></div>
+                </div>
+                <div class="parallax-card__content">
+                    <h3>Sunset Surf</h3>
+                    <p>Feel the breeze and ride the golden waves.</p>
+                    <a class="cta" href="#">Start now</a>
+                </div>
+            </article>
+            <p class="hint">Move your mouse or focus the card to reveal the call-to-action.</p>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <noscript>
+        JavaScript is required for interactive demos. The content remains accessible without effects.
+    </noscript>
+    
+</body>
+</html>
+
+
