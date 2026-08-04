@@ -3,77 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Microinteractions: Flip Card & Parallax Card</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Abhiroop Padate | Portfolio</title>
+    <meta name="description" content="Portfolio of Abhiroop Padate, a Computer & Communication Engineering student specializing in Machine Learning, Computer Vision, and Wireless Sensing.">
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <main class="container" id="main">
-        <h1>Microinteractions</h1>
+    <!-- Background Elements -->
+    <div class="bg-gradient-1"></div>
+    <div class="bg-gradient-2"></div>
+    <div class="grid-overlay"></div>
 
-        <section class="section" aria-labelledby="flip-card-title">
-            <h2 id="flip-card-title">A. Accessible 3D Flip Card</h2>
-            <div class="flip-card" data-flip-card>
-                <div class="flip-card__inner" aria-live="polite">
-                    <div class="flip-card__face flip-card__front" aria-label="Front of card">
-                        <img src="./Mounts.jpeg" alt="Mountain landscape" class="flip-card__image">
-                        <div class="flip-card__content">
-                            <h3 class="flip-card__title">Explore the Alps</h3>
-                            <p class="flip-card__text">Plan your next alpine adventure.</p>
-                            <button class="flip-card__toggle" type="button"
-                                aria-expanded="false"
-                                aria-controls="alps-card-back"
-                                data-flip-toggle>
-                                More details
-                            </button>
-                        </div>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">AP<span>.</span></a>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#publications" class="nav-link">Publications</a></li>
+                <li><a href="#skills" class="nav-link">Skills</a></li>
+                <li><a href="#achievements" class="nav-link">Achievements</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section fade-in">
+            <div class="hero-content">
+                <div class="badge">👋 Hello, I'm</div>
+                <h1 class="hero-title">Abhiroop <span class="gradient-text">Padate</span></h1>
+                <h2 class="hero-subtitle">Building intelligent systems that bridge AI research & real-world applications.</h2>
+                <p class="hero-description">
+                    Computer & Communication Engineering student (Honours in Data Science) at K. J. Somaiya College of Engineering. 
+                    <br><i class="fas fa-map-marker-alt"></i> Thane, Maharashtra, India
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">9.89</span>
+                        <span class="stat-label">CGPA</span>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-number">5</span>
+                        <span class="stat-label">Publications</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1</span>
+                        <span class="stat-label">Patent</span>
+                    </div>
+                </div>
+                <div class="cta-buttons">
+                    <a href="#projects" class="btn btn-primary">View My Work</a>
+                    <a href="mailto:abhyroop.padate@gmail.com" class="btn btn-secondary">Get In Touch</a>
+                </div>
+                <div class="social-links">
+                    <a href="https://linkedin.com/in/abhirooppadate" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/abhirooppadate" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="mailto:abhyroop.padate@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </section>
 
-                    <div class="flip-card__face flip-card__back" id="alps-card-back" aria-label="Back of card" tabindex="-1" data-flip-back>
-                        <div class="flip-card__back-content">
-                            <h3>Trip Details</h3>
-                            <p>7-day guided hikes with scenic train rides. Best season: July–September.</p>
-                            <ul class="details-list">
-                                <li>Difficulty: Moderate</li>
-                                <li>Altitude: up to 3,000 m</li>
-                                <li>Group size: 8–12</li>
-                            </ul>
-                            <div class="actions">
-                                <a href="#" class="btn btn-primary">Book now</a>
-                                <button class="btn btn-ghost" type="button" data-flip-close>Close</button>
-                            </div>
+        <!-- About Section -->
+        <section id="about" class="section reveal">
+            <h2 class="section-title">About <span class="gradient-text">Me</span></h2>
+            <div class="about-container glass-card">
+                <p class="about-text">
+                    I enjoy solving challenging engineering problems across Machine Learning, Computer Vision, Wireless Sensing, Biomechanics, Embedded AI, and Geospatial Analytics. I focus on taking research ideas to working prototypes using Python, Linux, deep learning, and signal processing.
+                </p>
+                <p class="about-text">
+                    Currently, I am experimenting with wireless sensing + transformers and compressed, low-latency models for embedded inference. I am also the proud founder of Forge3D.
+                </p>
+                
+                <h3 class="subsection-title mt-4">Current Interests</h3>
+                <div class="interests-grid">
+                    <div class="interest-item"><i class="fas fa-brain"></i> Machine Learning & Deep Learning</div>
+                    <div class="interest-item"><i class="fas fa-eye"></i> Computer Vision</div>
+                    <div class="interest-item"><i class="fas fa-wifi"></i> Wi‑Fi CSI & Wireless Sensing</div>
+                    <div class="interest-item"><i class="fas fa-wave-square"></i> Signal Processing</div>
+                    <div class="interest-item"><i class="fas fa-microchip"></i> Biomedical & Embedded AI</div>
+                    <div class="interest-item"><i class="fas fa-globe-americas"></i> Geospatial Analytics & ML Systems</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="section reveal">
+            <h2 class="section-title">Featured <span class="gradient-text">Projects</span></h2>
+            <div class="projects-grid">
+                <!-- Project 1 -->
+                <div class="project-card glass-card">
+                    <div class="project-icon"><i class="fas fa-broadcast-tower"></i></div>
+                    <h3 class="project-title">Wi‑Fi CSI Human Activity Recognition</h3>
+                    <p class="project-desc">End-to-end Linux-based wireless sensing pipeline using Intel AX200 adapters: packet capture → CSI extraction → preprocessing → PCA → Transformer-based models for real-time device‑free human activity recognition.</p>
+                    <div class="tech-tags">
+                        <span>Python</span><span>TensorFlow</span><span>Linux</span><span>Intel AX200</span><span>Signal Processing</span><span>Deep Learning</span>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="project-card glass-card">
+                    <div class="project-icon"><i class="fas fa-glasses"></i></div>
+                    <h3 class="project-title">Blind Cap — ChaturChakshu</h3>
+                    <p class="project-desc">An AI-powered wearable assistive device that integrates LiDAR, YOLOv8 and LLMs to provide contextual, real-time audio guidance for visually impaired users.</p>
+                    <div class="tech-tags">
+                        <span>Python</span><span>YOLOv8</span><span>Hugging Face</span><span>LoRA</span><span>Embedded AI</span>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="project-card glass-card">
+                    <div class="project-icon"><i class="fas fa-tree"></i></div>
+                    <h3 class="project-title">Deforestation Prediction</h3>
+                    <p class="project-desc">A machine learning + GIS framework using multi-temporal Sentinel-2 imagery and NDVI for predicting forest cover change.</p>
+                    <div class="project-highlight"><i class="fas fa-star"></i> 95.7% Balanced Accuracy · 0.992 ROC-AUC</div>
+                </div>
+
+                <!-- Project 4 -->
+                <div class="project-card glass-card">
+                    <div class="project-icon"><i class="fas fa-walking"></i></div>
+                    <h3 class="project-title">Biomechanics & Gait Analysis</h3>
+                    <p class="project-desc">Using deep learning and computer vision for predictive biomechanics. Including Joint Moment Prediction, IMU-based Gait Analysis, Video-based Pose Estimation, and Surface EMG Activity Recognition.</p>
+                </div>
+
+                <!-- Project 5 -->
+                <div class="project-card glass-card">
+                    <div class="project-icon"><i class="fas fa-credit-card"></i></div>
+                    <h3 class="project-title">CredDhwani</h3>
+                    <p class="project-desc">AI-powered credit risk analysis platform — end-to-end ML pipeline for automated applicant assessment and scoring.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Publications Section -->
+        <section id="publications" class="section reveal">
+            <h2 class="section-title">Publications & <span class="gradient-text">Patent</span></h2>
+            <div class="publications-container glass-card">
+                <div class="patent-highlight">
+                    <i class="fas fa-certificate"></i>
+                    <div>
+                        <h4>Published Patent</h4>
+                        <p>Digital Pinch Gauge</p>
+                    </div>
+                </div>
+                
+                <ul class="publications-list">
+                    <li>
+                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="pub-details">
+                            <h4>Prediction of Joint Moments from Kinematics Using Machine Learning</h4>
+                            <span class="pub-publisher">Elsevier</span>
                         </div>
+                    </li>
+                    <li>
+                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="pub-details">
+                            <h4>Deforestation Risk Prediction Using Multi‑Temporal NDVI</h4>
+                            <span class="pub-publisher">IEEE EarthSense</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="pub-details">
+                            <h4>Wind Speed Forecasting Using Hybrid Machine Learning</h4>
+                            <span class="pub-publisher">Springer LNNS</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="pub-details">
+                            <h4>Wi‑Fi CSI-Based Human Activity Classification</h4>
+                            <span class="pub-publisher">Taylor & Francis</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="pub-details">
+                            <h4>Surface EMG-Based Lower Limb Activity Recognition</h4>
+                            <span class="pub-publisher">Taylor & Francis</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Tech Stack Section -->
+        <section id="skills" class="section reveal">
+            <h2 class="section-title">Tech <span class="gradient-text">Stack</span></h2>
+            <div class="skills-grid">
+                <div class="skill-category glass-card">
+                    <h3><i class="fas fa-code"></i> Languages</h3>
+                    <div class="tech-tags">
+                        <span>Python</span><span>SQL</span><span>MATLAB</span><span>C++</span>
+                    </div>
+                </div>
+                <div class="skill-category glass-card">
+                    <h3><i class="fas fa-robot"></i> ML / AI</h3>
+                    <div class="tech-tags">
+                        <span>TensorFlow</span><span>PyTorch</span><span>Scikit‑learn</span><span>Hugging Face</span><span>Transformers</span>
+                    </div>
+                </div>
+                <div class="skill-category glass-card">
+                    <h3><i class="fas fa-tools"></i> Tools & Systems</h3>
+                    <div class="tech-tags">
+                        <span>Linux</span><span>Docker</span><span>Git</span><span>Arduino</span><span>Embedded toolchains</span>
+                    </div>
+                </div>
+                <div class="skill-category glass-card">
+                    <h3><i class="fas fa-layer-group"></i> Domains</h3>
+                    <div class="tech-tags">
+                        <span>Computer Vision</span><span>Signal Processing</span><span>Wireless Sensing (Wi‑Fi CSI)</span><span>GIS</span><span>Biomedical AI</span><span>Embedded AI</span>
                     </div>
                 </div>
             </div>
-            <p class="hint">Tip: Activate with keyboard (Enter/Space). Press Esc to close. Tab is trapped while open.</p>
         </section>
 
-        <section class="section" aria-labelledby="parallax-card-title">
-            <h2 id="parallax-card-title">B. Hover Parallax Card with CTA Reveal</h2>
-            <article class="parallax-card" data-parallax-card>
-                <div class="parallax-card__media" aria-hidden="true">
-                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" alt="Ocean waves at sunset">
-                    <div class="parallax-card__glow"></div>
-                </div>
-                <div class="parallax-card__content">
-                    <h3>Sunset Surf</h3>
-                    <p>Feel the breeze and ride the golden waves.</p>
-                    <a class="cta" href="#">Start now</a>
-                </div>
-            </article>
-            <p class="hint">Move your mouse or focus the card to reveal the call-to-action.</p>
+        <!-- Achievements Section -->
+        <section id="achievements" class="section reveal">
+            <h2 class="section-title"><span class="gradient-text">Achievements</span></h2>
+            <div class="achievements-container glass-card">
+                <ul class="achievements-list">
+                    <li><i class="fas fa-medal trophy-icon"></i> <strong>2nd Place</strong> — F1 in Schools (India National Finals)</li>
+                    <li><i class="fas fa-scroll trophy-icon"></i> <strong>Published Patent</strong> — Digital Pinch Gauge</li>
+                    <li><i class="fas fa-file-alt trophy-icon"></i> <strong>Five</strong> Research Publications</li>
+                    <li><i class="fas fa-award trophy-icon"></i> <strong>Smart India Hackathon</strong> — Finalist</li>
+                    <li><i class="fas fa-rocket trophy-icon"></i> <strong>Founder</strong> — Forge3D</li>
+                </ul>
+            </div>
         </section>
     </main>
 
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h2 class="footer-logo">AP<span>.</span></h2>
+            <p>Always exploring new datasets, sensors and models.</p>
+            <div class="footer-social">
+                <a href="https://linkedin.com/in/abhirooppadate" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/abhirooppadate" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="mailto:abhyroop.padate@gmail.com"><i class="fas fa-envelope"></i></a>
+            </div>
+            <p class="copyright">&copy; <span id="year"></span> Abhiroop Padate. All rights reserved.</p>
+            <p class="footer-note">Built from scratch with ❤️</p>
+        </div>
+    </footer>
+
+    <!-- Custom Script -->
     <script src="script.js"></script>
-    <noscript>
-        JavaScript is required for interactive demos. The content remains accessible without effects.
-    </noscript>
-    
 </body>
 </html>
-
-

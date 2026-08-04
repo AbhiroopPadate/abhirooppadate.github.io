@@ -1,146 +1,75 @@
-// A. Accessible 3D Flip Card with Focus Trap
-(function initFlipCard() {
-  const card = document.querySelector('[data-flip-card]');
-  if (!card) return;
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Mobile Menu Toggle
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navMenu = document.querySelector('.nav-menu');
 
-  const inner = card.querySelector('.flip-card__inner');
-  const toggleBtn = card.querySelector('[data-flip-toggle]');
-  const backPanel = card.querySelector('[data-flip-back]');
-  const closeBtn = card.querySelector('[data-flip-close]');
+    mobileMenu.addEventListener('click', () => {
+        mobileMenu.classList.toggle('is-active');
+        navMenu.classList.toggle('active');
+    });
 
-  let isFlipped = false;
-  let previousActiveElement = null;
+    // Close menu when clicking a link
+    document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
+        mobileMenu.classList.remove('is-active');
+        navMenu.classList.remove('active');
+    }));
 
-  function setFlipped(next) {
-    isFlipped = next;
-    card.classList.toggle('is-flipped', isFlipped);
-    toggleBtn.setAttribute('aria-expanded', String(isFlipped));
+    // 2. Navbar background on scroll
+    const navbar = document.getElementById('navbar');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
 
-    if (isFlipped) {
-      previousActiveElement = document.activeElement;
-      backPanel.removeAttribute('inert');
-      requestAnimationFrame(() => {
-        backPanel.focus({ preventScroll: true });
-      });
-      document.addEventListener('keydown', onKeydown, true);
-      document.addEventListener('focusin', maintainFocus, true);
-    } else {
-      document.removeEventListener('keydown', onKeydown, true);
-      document.removeEventListener('focusin', maintainFocus, true);
-      backPanel.setAttribute('tabindex', '-1');
-      if (previousActiveElement && previousActiveElement instanceof HTMLElement) {
-        previousActiveElement.focus({ preventScroll: true });
-      } else {
-        toggleBtn.focus({ preventScroll: true });
-      }
+    // 3. Scroll Reveal Animation
+    const revealElements = document.querySelectorAll('.reveal');
+
+    const reveal = () => {
+        const windowHeight = window.innerHeight;
+        const elementVisible = 150;
+
+        revealElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            if (elementTop < windowHeight - elementVisible) {
+                element.classList.add('active');
+            }
+        });
     }
-  }
 
-  function onKeydown(e) {
-    if (!isFlipped) return;
-    if (e.key === 'Escape') {
-      e.stopPropagation();
-      e.preventDefault();
-      setFlipped(false);
-      return;
+    window.addEventListener('scroll', reveal);
+    reveal(); // Trigger once on load
+
+    // 4. Update Copyright Year dynamically
+    const yearSpan = document.getElementById('year');
+    if(yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
     }
-    if (e.key === 'Tab') {
-      // Focus trap
-      const focusable = getFocusable(backPanel);
-      if (focusable.length === 0) {
-        e.preventDefault();
-        backPanel.focus();
-        return;
-      }
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const active = document.activeElement;
-      if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      } else if (e.shiftKey && active === first) {
-        e.preventDefault();
-        last.focus();
-      }
-    }
-  }
 
-  function maintainFocus(e) {
-    if (!isFlipped) return;
-    if (!backPanel.contains(e.target)) {
-      e.stopPropagation();
-      const focusable = getFocusable(backPanel);
-      (focusable[0] || backPanel).focus();
-    }
-  }
+    // 5. Active Link Highlighting on Scroll
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
 
-  function getFocusable(root) {
-    const selectors = [
-      'a[href]', 'button:not([disabled])', 'input:not([disabled])',
-      'select:not([disabled])', 'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])'
-    ];
-    return Array.from(root.querySelectorAll(selectors.join(',')))
-      .filter(el => el.offsetParent !== null);
-  }
+    window.addEventListener('scroll', () => {
+        let current = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            // Add a small offset to trigger slightly earlier
+            if (scrollY >= (sectionTop - 200)) {
+                current = section.getAttribute('id');
+            }
+        });
 
-  toggleBtn.addEventListener('click', () => setFlipped(true));
-  toggleBtn.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      setFlipped(true);
-    }
-  });
-  closeBtn.addEventListener('click', () => setFlipped(false));
-
-  // Prevent page scroll while flipped with Escape handling only; no inert widely supported
-})();
-
-// B. Hover Parallax Card with CTA Reveal
-(function initParallaxCard() {
-  const card = document.querySelector('[data-parallax-card]');
-  if (!card) return;
-  const media = card.querySelector('.parallax-card__media');
-  const rectOfMedia = () => media.getBoundingClientRect();
-
-  function update(e) {
-    const rect = rectOfMedia();
-    const cx = e && typeof e.clientX === 'number' ? e.clientX : rect.left + rect.width / 2;
-    const cy = e && typeof e.clientY === 'number' ? e.clientY : rect.top + rect.height / 2;
-    const x = cx - rect.left;
-    const y = cy - rect.top;
-    const mx = Math.max(0, Math.min(1, x / rect.width));
-    const my = Math.max(0, Math.min(1, y / rect.height));
-    const tx = (mx - 0.5) * 18; // translate px
-    const ty = (my - 0.5) * 14;
-    card.style.setProperty('--tx', tx.toFixed(2) + 'px');
-    card.style.setProperty('--ty', ty.toFixed(2) + 'px');
-    media.style.setProperty('--mx', (mx * 100).toFixed(2) + '%');
-    media.style.setProperty('--my', (my * 100).toFixed(2) + '%');
-  }
-
-  // Bind pointer tracking only to the media region so glow does not spill over text
-  media.addEventListener('mousemove', update);
-  media.addEventListener('mouseenter', update);
-  media.addEventListener('mouseleave', () => {
-    card.style.removeProperty('--tx');
-    card.style.removeProperty('--ty');
-    media.style.removeProperty('--mx');
-    media.style.removeProperty('--my');
-  });
-
-  // Keyboard/focus accessibility: provide slight reveal when focused
-  card.addEventListener('focusin', () => {
-    const rect = rectOfMedia();
-    update({ clientX: rect.left + rect.width * 0.72, clientY: rect.top + rect.height * 0.36 });
-  });
-  card.addEventListener('focusout', () => {
-    card.style.removeProperty('--tx');
-    card.style.removeProperty('--ty');
-    media.style.removeProperty('--mx');
-    media.style.removeProperty('--my');
-  });
-})();
-
-
-
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').substring(1) === current) {
+                link.classList.add('active');
+            }
+        });
+    });
+});
