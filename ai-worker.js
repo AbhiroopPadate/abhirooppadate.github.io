@@ -27,6 +27,6 @@ self.onmessage = async (event) => {
       self.postMessage({ type: 'result', id, reply: String(reply || '').trim() });
     }
   } catch (error) {
-    self.postMessage({ type: 'error', id, message: String(error?.message || error || 'Local worker error') });
+    self.postMessage({ type: 'error', id: id ?? 'init', message: String(error?.message || error || 'Local worker error') });
   }
 };

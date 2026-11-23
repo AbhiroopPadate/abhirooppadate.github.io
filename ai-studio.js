@@ -222,11 +222,17 @@ function setThinking(active) {
 async function initCpuModel() {
   setStatus('Preparing CPU fallback locally…', 'loading');
   if (!window.Worker) throw new Error('Web Workers are unavailable in this browser.');
-  cpuWorker = new Worker(`ai-worker.js?v=20261124-worker-v3`, { type: 'module' });
+  cpuWorker = new Worker(`ai-worker.js?v=20261124-worker-v4`, { type: 'module' });
   cpuWorker.onmessage = (event) => {
     const { type, id, report, reply, message } = event.data || {};
     if (type === 'progress') updateProgress(report);
     if (type === 'ready') workerRequests.get('init')?.resolve(true);
+    if (type === 'error' && (id === 'init' || id === undefined)) {
+      const initRequest = workerRequests.get('init');
+      workerRequests.delete('init');
+      initRequest?.reject(new Error(message));
+      return;
+    }
     if (type === 'result' || type === 'error') {
       const request = workerRequests.get(id);
       if (!request) return;
