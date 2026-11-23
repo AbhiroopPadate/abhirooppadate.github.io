@@ -4,6 +4,9 @@ const MODELS = [
 ];
 let engine = null;
 let localPipe = null;
+let cpuWorker = null;
+let workerRequestId = 0;
+const workerRequests = new Map();
 let loading = false;
 let activeModel = null;
 let runtime = null;
@@ -216,16 +219,35 @@ function setThinking(active) {
 }
 
 async function initCpuModel() {
-  const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers/+esm');
-  env.allowLocalModels = false;
-  env.useBrowserCache = true;
   setStatus('Preparing CPU fallback locally…', 'loading');
-  localPipe = await pipeline('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
-    dtype: 'q4',
-    progress_callback: updateProgress
-  });
+  if (!window.Worker) throw new Error('Web Workers are unavailable in this browser.');
+  cpuWorker = new Worker(`ai-worker.js?v=20261124-worker-v1`, { type: 'module' });
+  cpuWorker.onmessage = (event) => {
+    const { type, id, report, reply, message } = event.data || {};
+    if (type === 'progress') updateProgress(report);
+    if (type === 'ready') workerRequests.get('init')?.resolve(true);
+    if (type === 'result' || type === 'error') {
+      const request = workerRequests.get(id);
+      if (!request) return;
+      workerRequests.delete(id);
+      type === 'result' ? request.resolve(reply) : request.reject(new Error(message));
+    }
+  };
+  cpuWorker.onerror = (event) => workerRequests.get('init')?.reject(new Error(event.message || 'Local worker error'));
+  const ready = new Promise((resolve, reject) => workerRequests.set('init', { resolve, reject }));
+  cpuWorker.postMessage({ type: 'init' });
+  await ready;
+  localPipe = { worker: true };
   activeModel = { label: 'Qwen 2.5 · 0.5B · WASM CPU fallback' };
   runtime = 'wasm';
+}
+
+function generateWithCpuWorker(messages) {
+  return new Promise((resolve, reject) => {
+    const id = ++workerRequestId;
+    workerRequests.set(id, { resolve, reject });
+    cpuWorker.postMessage({ type: 'generate', id, messages });
+  });
 }
 
 async function initModel() {
@@ -314,8 +336,7 @@ async function answer(prompt) {
     } else {
       const chatMessages = [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-7)];
       setMessageText(body, 'Generating locally on this device…');
-      const result = await localPipe(chatMessages, { max_new_tokens: 320, temperature: 0.35, do_sample: false, repetition_penalty: 1.08, return_full_text: false });
-      const reply = generatedReply(result);
+      const reply = await withGenerationTimeout(() => generateWithCpuWorker(chatMessages));
       setMessageText(body, usableReply(reply) ? reply : fallback(prompt));
     }
     history.push({ role: 'assistant', content: body.textContent });
@@ -327,8 +348,7 @@ async function answer(prompt) {
         setStatus('Switching to private CPU fallback…', 'loading');
         await initCpuModel();
         const chatMessages = [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-7)];
-        const result = await localPipe(chatMessages, { max_new_tokens: 320, temperature: 0.35, do_sample: false, repetition_penalty: 1.08, return_full_text: false });
-        const reply = generatedReply(result);
+        const reply = await withGenerationTimeout(() => generateWithCpuWorker(chatMessages));
         setMessageText(body, usableReply(reply) ? reply : fallback(prompt));
         history.push({ role: 'assistant', content: body.textContent });
         setStatus('Local CPU model ready · private', 'ready');
