@@ -177,6 +177,17 @@ function fallback(prompt) {
   return 'I can explain the public projects, research record, AI/ML stack, and the design decisions behind Blind Cap. Try “Explain Blind Cap”, “Map the projects”, or “Summarize the publications.”';
 }
 
+function generatedReply(result) {
+  const generated = result?.[0]?.generated_text;
+  const reply = Array.isArray(generated) ? generated.at(-1)?.content : generated;
+  return String(reply || '').trim();
+}
+
+function usableReply(reply) {
+  const normalized = String(reply || '').replace(/\s+/g, ' ').trim();
+  return normalized.length >= 36 && !/^(assistant|user|system)\s*:/i.test(normalized);
+}
+
 function updateProgress(report) {
   const value = Math.max(0, Math.min(100, Math.round((report.progress || 0) * 100)));
   progressWrap.hidden = false;
@@ -277,7 +288,7 @@ async function answer(prompt) {
       const stream = await engine.chat.completions.create({
         messages: [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-6)],
         temperature: 0.55,
-        max_tokens: 420,
+        max_tokens: 520,
         stream: true
       });
       let text = '';
@@ -290,10 +301,9 @@ async function answer(prompt) {
     } else {
       const chatMessages = [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-7)];
       setMessageText(body, 'Generating locally on this device…');
-      const result = await localPipe(chatMessages, { max_new_tokens: 220, temperature: 0.35, do_sample: false, repetition_penalty: 1.08, return_full_text: false });
-      const generated = result?.[0]?.generated_text;
-      const reply = Array.isArray(generated) ? generated.at(-1)?.content : generated;
-      setMessageText(body, String(reply || '').trim() || 'The local model returned no text. Try the prompt again.');
+      const result = await localPipe(chatMessages, { max_new_tokens: 320, temperature: 0.35, do_sample: false, repetition_penalty: 1.08, return_full_text: false });
+      const reply = generatedReply(result);
+      setMessageText(body, usableReply(reply) ? reply : fallback(prompt));
     }
     history.push({ role: 'assistant', content: body.textContent });
     setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : 'Local CPU model ready · private', 'ready');
@@ -304,17 +314,29 @@ async function answer(prompt) {
         setStatus('Switching to private CPU fallback…', 'loading');
         await initCpuModel();
         const chatMessages = [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-7)];
-        const result = await localPipe(chatMessages, { max_new_tokens: 220, temperature: 0.35, do_sample: false, repetition_penalty: 1.08, return_full_text: false });
-        const generated = result?.[0]?.generated_text;
-        const reply = Array.isArray(generated) ? generated.at(-1)?.content : generated;
-        setMessageText(body, String(reply || '').trim() || 'The local model returned no text. Try the prompt again.');
+        const result = await localPipe(chatMessages, { max_new_tokens: 320, temperature: 0.35, do_sample: false, repetition_penalty: 1.08, return_full_text: false });
+        const reply = generatedReply(result);
+        setMessageText(body, usableReply(reply) ? reply : fallback(prompt));
         history.push({ role: 'assistant', content: body.textContent });
         setStatus('Local CPU model ready · private', 'ready');
         return;
       } catch (fallbackError) {
         localPipe = null;
+        setMessageText(body, fallback(prompt));
+        history.push({ role: 'assistant', content: body.textContent });
+        setStatus('Public fallback ready · local model retry available', 'ready');
+        setChatEnabled(false);
+        loadButton.disabled = false;
+        loadButton.textContent = 'Re-initialize local model ↗';
+        return;
       }
     } else {
+      if (localPipe) {
+        setMessageText(body, fallback(prompt));
+        history.push({ role: 'assistant', content: body.textContent });
+        setStatus('Local model ready · private', 'ready');
+        return;
+      }
       engine = null;
       localPipe = null;
     }
