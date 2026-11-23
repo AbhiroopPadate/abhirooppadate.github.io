@@ -125,12 +125,15 @@ async function initModel() {
   } catch (error) {
     const detail = String(error?.message || error || '').toLowerCase();
     const memoryIssue = detail.includes('memory') || detail.includes('device was lost') || detail.includes('out of bounds');
-    setStatus(memoryIssue ? 'GPU memory limit · model locked' : 'Local runtime unavailable · model locked', 'warn');
+    const adapterIssue = detail.includes('adapter') || detail.includes('webgpu');
+    setStatus(memoryIssue ? 'GPU memory limit · model locked' : adapterIssue ? 'No compatible GPU adapter · model locked' : 'WebLLM runtime unavailable · model locked', 'warn');
     loadButton.disabled = false;
     loadButton.textContent = memoryIssue ? 'Retry with low-memory model ↗' : 'Retry local model ↗';
     $('#ai-hint').textContent = memoryIssue
       ? 'The GPU rejected the first model. A smaller fallback was attempted; close GPU-heavy tabs and retry in Chrome or Edge.'
-      : 'The local runtime could not start. Prompts remain locked; use a current Chrome or Edge build with WebGPU enabled.';
+      : adapterIssue
+        ? 'WebGPU is exposed, but this browser has no compatible GPU adapter available. Enable hardware acceleration, then retry in Chrome or Edge.'
+        : 'The WebLLM runtime could not start. Prompts remain locked; retry in a current Chrome or Edge build with hardware acceleration enabled.';
   } finally {
     loading = false;
     progress.hidden = true;
