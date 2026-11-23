@@ -1,93 +1,29 @@
 document.documentElement.classList.add('js-ready');
-
-const nav = document.querySelector('[data-nav]');
-const menuToggle = document.querySelector('.menu-toggle');
-const navLinks = document.querySelector('#nav-links');
-const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-window.addEventListener('scroll', () => {
-  nav?.classList.toggle('scrolled', window.scrollY > 30);
-}, { passive: true });
-
-menuToggle?.addEventListener('click', () => {
-  const open = navLinks?.classList.toggle('open');
-  menuToggle.setAttribute('aria-expanded', String(open));
-  menuToggle.textContent = open ? 'Close' : 'Menu';
-});
-
-navLinks?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
-  navLinks.classList.remove('open');
-  menuToggle?.setAttribute('aria-expanded', 'false');
-  if (menuToggle) menuToggle.textContent = 'Menu';
-}));
-
-const reveal = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('is-visible');
-      reveal.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.12 });
-
-document.querySelectorAll('[data-reveal]').forEach((element) => reveal.observe(element));
-
-const projectData = {
-  wifi: {
-    title: 'Wi‑Fi CSI-Based Human Activity Classification',
-    body: 'A device-free ambient sensing project using commodity Wi‑Fi network interface cards. The pipeline extracts CSI subcarrier amplitudes and phase matrices, applies PCA for spatiotemporal noise filtering, and trains Transformer-based and deep neural network models in Python and TensorFlow. Reported result: 85.10% classification accuracy and 0.8511 Macro F1.'
-  },
-  gait: {
-    title: 'Video-Based Gait Tracking & Biomechanical Analysis',
-    body: 'A markerless motion-capture pipeline using YOLOv12, Google MediaPipe, and TensorFlow in Python. It extracts full-body anatomical keypoints from sagittal-plane and diagonal feeds, calculates joint angles and kinetics, and uses LSTM sequence models to assess trajectories, track repetitions, and flag postural asymmetry.'
-  },
-  tourist: {
-    title: 'Smart Tourist Safety & Incident Response',
-    body: 'A Smart India Hackathon 2025 system built with Team Sixquels, ranked 4th in university selection. The project combines PyTorch anomaly detection, hazardous-zone geofencing, rapid alerting, a React.js web client, a Node.js/Express administrative portal, and tamper-proof digital identity credentials.'
-  },
-  blind: {
-    title: 'Blind Cap — ChaturChakshu',
-    body: 'An assistive wearable integrating Intel RealSense, TF‑Luna ToF sensors, YDLIDAR X2, YOLOv8, and an embedded processing unit. A quantized Hugging Face model adapted with LoRA turns scene understanding into contextual, natural-language audio cues.'
-  }
+const header=document.querySelector('[data-header]');
+const menu=document.querySelector('.menu-toggle');
+const nav=document.querySelector('#primary-nav');
+const motionToggle=document.querySelector('[data-motion-toggle]');
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+window.addEventListener('scroll',()=>{header?.classList.toggle('scrolled',window.scrollY>24);if(!reduced&&!document.body.classList.contains('motion-off'))document.documentElement.style.setProperty('--scroll-y',`${window.scrollY}px`)},{passive:true});
+menu?.addEventListener('click',()=>{const open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));menu.textContent=open?'Close':'Menu'});
+nav?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menu?.setAttribute('aria-expanded','false');if(menu)menu.textContent='Menu'}));
+motionToggle?.addEventListener('click',()=>{const off=document.body.classList.toggle('motion-off');motionToggle.setAttribute('aria-pressed',String(off));motionToggle.textContent=off?'Motion: off':'Motion: on'});
+const reveal=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');reveal.unobserve(entry.target)}}),{threshold:.1});
+document.querySelectorAll('[data-reveal]').forEach(el=>reveal.observe(el));
+const projects={
+wifi:{title:'Wi‑Fi CSI Human Activity Classification',body:'This device-free sensing pipeline turns commodity Wi‑Fi channel state information into activity predictions. It combines subcarrier amplitude and phase matrices, PCA-based spatiotemporal filtering, Transformer-based models, and deep neural networks. Reported result: 85.10% accuracy and 0.8511 Macro F1.',tags:['Python','TensorFlow','PCA','Transformers']},
+'gait-video':{title:'Video-Based Gait Tracking',body:'A markerless motion-capture system using YOLOv12, MediaPipe, and TensorFlow. It extracts anatomical keypoints from sagittal and diagonal views, computes joint motion, tracks repetitions, and uses sequence modeling to surface postural asymmetry.',tags:['YOLOv12','MediaPipe','LSTM','Biomechanics']},
+blind:{title:'Blind Cap — ChaturChakshu',body:'An assistive wearable that combines Intel RealSense, TF‑Luna ToF, YDLIDAR X2, YOLOv8, and a quantized Hugging Face model adapted with LoRA to turn scene understanding into contextual audio cues.',tags:['YOLOv8','LiDAR','LoRA','Embedded AI']},
+imu:{title:'IMU-Based Gait Analysis',body:'An adaptive and computationally efficient framework for gait event detection and spatiotemporal parameter estimation from wearable inertial data. The work was accepted at ICTEAH 2026 as Paper ID 326.',tags:['IMU','Python','Gait events','Edge AI']},
+deforestation:{title:'Deforestation Prediction — SGNP',body:'A geospatial ML framework using multi-temporal Sentinel-2 imagery and NDVI features to model forest-cover change and risk in Sanjay Gandhi National Park and Mumbai suburban areas. Reported result: 95.7% balanced accuracy and 0.992 ROC-AUC.',tags:['QGIS','NDVI','Sentinel-2','Remote sensing']},
+tourist:{title:'Smart Tourist Safety & Response',body:'A Smart India Hackathon 2025 system built with Team Sixquels and ranked 4th in university selection. It combines PyTorch anomaly detection, hazardous-zone geofencing, verified credentials, a React client, and a Node.js/Express administrative portal.',tags:['PyTorch','React','Node.js','Geospatial']},
+creddhwani:{title:'CredDhwani',body:'An AI-powered credit risk analysis platform with an end-to-end machine learning pipeline for automated applicant assessment and scoring.',tags:['Python','Machine learning','FinTech']},
+gearing:{title:'Automatic Gearing Kit for Bicycle',body:'A mechatronic system for automatic bicycle gear shifting, combining microcontrollers, sensing, and ML-informed control to make a physical mechanism respond intelligently.',tags:['Embedded','Microcontrollers','Mechatronics']},
+gym:{title:'Gym Tracker AI',body:'A computer-vision application for recognizing workouts and exercises, translating movement into useful training feedback.',tags:['Python','OpenCV','Computer vision']},
+route:{title:'Optimized Route Planning for RTN Trucks',body:'A logistics optimization project using QGIS, GPS, and PyGAD for route planning and truck load sharing in postal transportation.',tags:['QGIS','PyGAD','Python']}
 };
-
-const dialog = document.querySelector('#project-dialog');
-document.querySelectorAll('[data-open-project]').forEach((button) => button.addEventListener('click', () => {
-  const data = projectData[button.dataset.openProject];
-  if (!data || !dialog) return;
-  document.querySelector('#dialog-title').textContent = data.title;
-  document.querySelector('#dialog-body').textContent = data.body;
-  dialog.showModal();
-}));
-document.querySelector('[data-close-dialog]')?.addEventListener('click', () => dialog.close());
-dialog?.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
-
-document.querySelectorAll('.filter').forEach((button) => button.addEventListener('click', () => {
-  document.querySelectorAll('.filter').forEach((item) => item.classList.remove('active'));
-  button.classList.add('active');
-  const filter = button.dataset.filter;
-  document.querySelectorAll('.project-card').forEach((card) => {
-    card.hidden = filter !== 'all' && card.dataset.category !== filter;
-  });
-}));
-
-document.querySelectorAll('.pub-filter').forEach((button) => button.addEventListener('click', () => {
-  document.querySelectorAll('.pub-filter').forEach((item) => item.classList.remove('active'));
-  button.classList.add('active');
-  const filter = button.dataset.pubFilter;
-  document.querySelectorAll('.publication').forEach((card) => {
-    card.hidden = filter !== 'all' && card.dataset.pubKind !== filter;
-  });
-}));
-
-if (!reduced) {
-  window.addEventListener('scroll', () => {
-    const hero = document.querySelector('.hero');
-    if (!hero) return;
-    const progress = Math.min(1, Math.max(0, window.scrollY / (hero.offsetHeight * 0.7)));
-    const copy = document.querySelector('.hero-copy');
-    const portrait = document.querySelector('.hero-visual');
-    if (copy) copy.style.transform = `translate3d(0, ${progress * 34}px, 0)`;
-    if (portrait) portrait.style.transform = `translate3d(0, ${progress * -24}px, 0)`;
-  }, { passive: true });
-}
+const dialog=document.querySelector('#project-dialog');
+document.querySelectorAll('[data-open-project]').forEach(btn=>btn.addEventListener('click',()=>{const item=projects[btn.dataset.openProject];if(!item)return;document.querySelector('#dialog-title').textContent=item.title;document.querySelector('#dialog-body').textContent=item.body;document.querySelector('#dialog-tags').innerHTML=item.tags.map(tag=>`<span>${tag}</span>`).join('');dialog.showModal()}));
+document.querySelector('[data-close-dialog]')?.addEventListener('click',()=>dialog.close());dialog?.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
+document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const filter=btn.dataset.filter;document.querySelectorAll('.project-card').forEach(card=>{card.hidden=filter!=='all'&&card.dataset.category!==filter})}));
+document.querySelectorAll('.pub-filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.pub-filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const filter=btn.dataset.pubFilter;document.querySelectorAll('.publication').forEach(card=>{card.hidden=filter!=='all'&&card.dataset.pubKind!==filter})}));
