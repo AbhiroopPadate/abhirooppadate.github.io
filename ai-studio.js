@@ -13,6 +13,7 @@ let runtime = null;
 let promptInFlight = false;
 const history = [];
 const GENERATION_TIMEOUT_MS = 18000;
+const MODEL_INIT_TIMEOUT_MS = 30000;
 // The universal WASM path keeps the public demo responsive across browsers and GPUs.
 const ENABLE_WEBGPU = false;
 
@@ -221,7 +222,7 @@ function setThinking(active) {
 async function initCpuModel() {
   setStatus('Preparing CPU fallback locally…', 'loading');
   if (!window.Worker) throw new Error('Web Workers are unavailable in this browser.');
-  cpuWorker = new Worker(`ai-worker.js?v=20261124-worker-v2`, { type: 'module' });
+  cpuWorker = new Worker(`ai-worker.js?v=20261124-worker-v3`, { type: 'module' });
   cpuWorker.onmessage = (event) => {
     const { type, id, report, reply, message } = event.data || {};
     if (type === 'progress') updateProgress(report);
@@ -236,10 +237,21 @@ async function initCpuModel() {
   cpuWorker.onerror = (event) => workerRequests.get('init')?.reject(new Error(event.message || 'Local worker error'));
   const ready = new Promise((resolve, reject) => workerRequests.set('init', { resolve, reject }));
   cpuWorker.postMessage({ type: 'init' });
-  await ready;
-  localPipe = { worker: true };
-  activeModel = { label: 'SmolLM2 · 360M · WASM worker' };
-  runtime = 'wasm';
+  try {
+    await Promise.race([
+      ready,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Local model download timed out.')), MODEL_INIT_TIMEOUT_MS))
+    ]);
+    localPipe = { worker: true };
+    activeModel = { label: 'SmolLM2 · 360M · WASM worker' };
+    runtime = 'wasm';
+  } catch (error) {
+    cpuWorker.terminate();
+    cpuWorker = null;
+    localPipe = { fallback: true };
+    activeModel = { label: 'Public profile agent · private fallback' };
+    runtime = 'fallback';
+  }
 }
 
 function generateWithCpuWorker(messages) {
@@ -283,11 +295,13 @@ async function initModel() {
       await initCpuModel();
     }
     $('#ai-model-label').textContent = activeModel.label;
-    setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : 'Local CPU model ready · private', 'ready');
+    setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : runtime === 'wasm' ? 'Local CPU model ready · private' : 'Local public agent ready · private', 'ready');
     loadButton.textContent = 'Local model ready ✓';
     $('#ai-hint').textContent = runtime === 'webgpu'
       ? 'Prompts stay on this device. WebGPU is active and the model is cached locally.'
-      : 'WebGPU was unavailable, so the browser switched to a private WASM CPU model. It is cached locally for your next visit.';
+      : runtime === 'wasm'
+        ? 'WebGPU was unavailable, so the browser switched to a private WASM CPU model. It is cached locally for your next visit.'
+        : 'The compact model could not finish its first download, so the private public-profile agent is available while you retry.';
     setChatEnabled(true);
     input.focus();
   } catch (error) {
@@ -334,13 +348,17 @@ async function answer(prompt) {
       });
       setMessageText(body, usableReply(text) ? text : fallback(prompt));
     } else {
-      const chatMessages = [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-7)];
-      setMessageText(body, 'Generating locally on this device…');
-      const reply = await withGenerationTimeout(() => generateWithCpuWorker(chatMessages));
-      setMessageText(body, usableReply(reply) ? reply : fallback(prompt));
+      if (localPipe.fallback) {
+        setMessageText(body, fallback(prompt));
+      } else {
+        const chatMessages = [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-7)];
+        setMessageText(body, 'Generating locally on this device…');
+        const reply = await withGenerationTimeout(() => generateWithCpuWorker(chatMessages));
+        setMessageText(body, usableReply(reply) ? reply : fallback(prompt));
+      }
     }
     history.push({ role: 'assistant', content: body.textContent });
-    setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : 'Local CPU model ready · private', 'ready');
+    setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : runtime === 'wasm' ? 'Local CPU model ready · private' : 'Local public agent ready · private', 'ready');
   } catch (error) {
     if (engine && !localPipe) {
       engine = null;
@@ -351,7 +369,7 @@ async function answer(prompt) {
         const reply = await withGenerationTimeout(() => generateWithCpuWorker(chatMessages));
         setMessageText(body, usableReply(reply) ? reply : fallback(prompt));
         history.push({ role: 'assistant', content: body.textContent });
-        setStatus('Local CPU model ready · private', 'ready');
+        setStatus(runtime === 'wasm' ? 'Local CPU model ready · private' : 'Local public agent ready · private', 'ready');
         return;
       } catch (fallbackError) {
         localPipe = null;
