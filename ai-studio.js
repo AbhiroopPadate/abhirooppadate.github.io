@@ -5,6 +5,8 @@ const history = [];
 
 const PUBLIC_CONTEXT = `You are Abhiroop Padate's local portfolio agent. You only know the public facts below. Never invent private information, contact details, passwords, files, browsing history, or unpublished personal data. If asked for private information, clearly say you do not have access to it. Be specific, useful, and honest about dates and DOI-pending work.
 
+RESPONSE STYLE: Answer directly in 3–6 concise bullets or short paragraphs. For project questions, organize around problem, inputs, model/system, result, and impact. For publication questions, distinguish DOI-linked published records from DOI-pending accepted work. Use only facts in this context; if a detail is missing, say so instead of guessing.
+
 PUBLIC PROFILE: Abhiroop is a Computer & Communication Engineering student at KJ Somaiya College of Engineering with Honours in Data Science. He builds AI systems across agentic AI and LLMs, machine learning, computer vision, biomedical intelligence, wireless sensing, geospatial ML, embedded systems, and edge AI.
 
 SELECTED PROJECTS: Wi-Fi CSI Human Activity Classification (Transformer/DNN, 85.10% accuracy); Video-Based Gait Tracking (YOLOv12, MediaPipe, LSTM); Blind Cap — ChaturChakshu (agentic assistive wearable combining RealSense, ToF, LiDAR, YOLOv8, and a quantized LoRA-adapted language model for contextual audio guidance); IMU-Based Gait Analysis; Deforestation Prediction for SGNP (Sentinel-2, NDVI, GIS, 95.7% balanced accuracy); Smart Tourist Safety & Response (anomaly detection, geofencing, verified identity, React/Node); CredDhwani (credit risk ML); Automatic Gearing Kit; Gym Tracker AI; Optimized Route Planning for RTN Trucks.
@@ -19,6 +21,29 @@ const status = $('#ai-status');
 const loadButton = $('#ai-load');
 const sendButton = $('#ai-send');
 const progress = $('#ai-progress');
+const input = $('#ai-input');
+const launcher = $('#ai-launcher');
+const studio = $('#ai-studio');
+const navLink = document.querySelector('a[href="#ai-studio"]');
+const clearButton = $('#ai-clear');
+const closeButton = document.createElement('button');
+closeButton.className = 'ai-close';
+closeButton.type = 'button';
+closeButton.setAttribute('aria-label', 'Close local AI agent');
+closeButton.textContent = '×';
+studio.prepend(closeButton);
+
+function setChatEnabled(enabled) {
+  input.disabled = !enabled;
+  sendButton.disabled = !enabled;
+  input.setAttribute('aria-disabled', String(!enabled));
+}
+
+function setPanel(open) {
+  studio.classList.toggle('ai-open', open);
+  launcher.setAttribute('aria-expanded', String(open));
+  if (open) setTimeout(() => (engine ? input : loadButton).focus(), 40);
+}
 
 function setStatus(text, state = 'idle') {
   status.textContent = text;
@@ -51,9 +76,9 @@ function fallback(prompt) {
 async function initModel() {
   if (engine || loading) return;
   if (!navigator.gpu) {
-    setStatus('WebGPU unavailable · demo mode', 'warn');
-    loadButton.textContent = 'Use demo knowledge ↗';
-    $('#ai-hint').textContent = 'This browser cannot run the local model, so the public-knowledge fallback remains available.';
+    setStatus('WebGPU unavailable · initialize on a compatible browser', 'warn');
+    loadButton.textContent = 'WebGPU required ↗';
+    $('#ai-hint').textContent = 'This browser cannot run the local model. Prompts stay locked until WebGPU is available.';
     return;
   }
   loading = true;
@@ -72,11 +97,13 @@ async function initModel() {
     setStatus('Local model ready · private', 'ready');
     loadButton.textContent = 'Local model ready ✓';
     $('#ai-hint').textContent = 'Prompts stay on this device. The model is cached locally for your next visit.';
+    setChatEnabled(true);
+    input.focus();
   } catch (error) {
-    setStatus('Local model unavailable · demo mode', 'warn');
+    setStatus('Could not initialize · try again', 'warn');
     loadButton.disabled = false;
     loadButton.textContent = 'Retry local model ↗';
-    $('#ai-hint').textContent = 'The public-knowledge fallback is still available; try again on a WebGPU-enabled browser.';
+    $('#ai-hint').textContent = 'The model did not initialize. Prompts remain locked; try again with a WebGPU-enabled browser.';
   } finally {
     loading = false;
     progress.hidden = true;
@@ -86,7 +113,7 @@ async function initModel() {
 async function answer(prompt) {
   addMessage('user', prompt);
   if (!engine) {
-    addMessage('assistant', fallback(prompt));
+    addMessage('assistant', 'Please initialize the local model above before sending prompts. Your chat stays locked until the model is ready.');
     return;
   }
   sendButton.disabled = true;
@@ -110,17 +137,24 @@ async function answer(prompt) {
     setStatus('Local model ready · private', 'ready');
   } catch (error) {
     engine = null;
-    body.textContent = fallback(prompt);
-    setStatus('Recovered with demo knowledge', 'warn');
+    body.textContent = 'The local model stopped before completing this response. Re-initialize it and try again; no prompt was sent to a server.';
+    setStatus('Model stopped · re-initialize', 'warn');
+    setChatEnabled(false);
+    loadButton.disabled = false;
+    loadButton.textContent = 'Re-initialize local model ↗';
   } finally {
-    sendButton.disabled = false;
+    if (engine) sendButton.disabled = false;
   }
 }
 
+setChatEnabled(false);
+setPanel(false);
+launcher.addEventListener('click', () => setPanel(!studio.classList.contains('ai-open')));
+closeButton.addEventListener('click', () => setPanel(false));
+navLink?.addEventListener('click', (event) => { event.preventDefault(); setPanel(true); });
 loadButton.addEventListener('click', initModel);
 $('#ai-form').addEventListener('submit', (event) => {
   event.preventDefault();
-  const input = $('#ai-input');
   const prompt = input.value.trim();
   if (!prompt || sendButton.disabled) return;
   input.value = '';
@@ -130,7 +164,7 @@ document.querySelectorAll('[data-ai-prompt]').forEach((button) => button.addEven
   $('#ai-input').value = button.dataset.aiPrompt;
   $('#ai-input').focus();
 }));
-$('#ai-clear').addEventListener('click', () => {
+clearButton.addEventListener('click', () => {
   history.length = 0;
   messages.innerHTML = '<div class="ai-message assistant"><span class="ai-avatar">AI</span><p>Chat cleared. I still only know the public portfolio knowledge embedded in this page.</p></div>';
 });
