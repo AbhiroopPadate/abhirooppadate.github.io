@@ -94,11 +94,11 @@ async function initCpuModel() {
   env.allowLocalModels = false;
   env.useBrowserCache = true;
   setStatus('Preparing CPU fallback locally…', 'loading');
-  localPipe = await pipeline('text-generation', 'onnx-community/LFM2.5-350M-ONNX', {
+  localPipe = await pipeline('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
     dtype: 'q4',
     progress_callback: updateProgress
   });
-  activeModel = { label: 'LFM 2.5 · 350M · WASM CPU fallback' };
+  activeModel = { label: 'Qwen 2.5 · 0.5B · WASM CPU fallback' };
   runtime = 'wasm';
 }
 
@@ -183,7 +183,7 @@ async function answer(prompt) {
     } else {
       const transcript = [PUBLIC_CONTEXT, ...history.slice(-7, -1).map((item) => `${item.role === 'user' ? 'User' : 'Assistant'}: ${item.content}`), `User: ${prompt}`, 'Assistant:'].join('\n\n');
       body.textContent = 'Generating locally on this device…';
-      const result = await localPipe(transcript, { max_new_tokens: 140, temperature: 0.45, do_sample: false, return_full_text: false });
+      const result = await localPipe(transcript, { max_new_tokens: 100, temperature: 0.35, do_sample: false, return_full_text: false });
       body.textContent = result?.[0]?.generated_text?.trim() || 'The local model returned no text. Try the prompt again.';
     }
     history.push({ role: 'assistant', content: body.textContent });
