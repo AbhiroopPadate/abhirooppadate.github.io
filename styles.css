@@ -30,3 +30,8 @@ dialog{width:min(650px,calc(100% - 32px));padding:2rem;border:0;border-radius:18
 .ai-studio.ai-open .ai-actions{position:static!important;flex:0 0 auto;margin:0;min-height:34px}
 .ai-studio.ai-open .ai-actions>span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:680px){.ai-studio.ai-open .ai-actions>span{display:none}}
+.ai-studio.ai-open .ai-studio-heading{padding:.1rem .25rem}
+.ai-studio.ai-open .ai-studio-heading p{display:none}
+.ai-studio.ai-open .ai-studio-heading h2{margin:.1rem 0 .3rem;font-size:clamp(1.9rem,6vw,2.8rem)}
+.ai-studio.ai-open .ai-skills{max-height:128px;padding:.6rem}
+.ai-studio.ai-open .ai-messages{min-height:170px}
