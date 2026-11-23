@@ -1,284 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abhiroop Padate | Portfolio</title>
-    <meta name="description" content="Portfolio of Abhiroop Padate, a Computer & Communication Engineering student specializing in Machine Learning, Computer Vision, and Wireless Sensing.">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Abhiroop Padate — undergraduate researcher and systems builder working across biomedical ML, wireless sensing, computer vision and edge AI." />
+  <meta name="theme-color" content="#07111f" />
+  <title>Abhiroop Padate — Research, Signals, Systems</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="script.js"></script>
 </head>
 <body>
-    <!-- Background Elements -->
-    <div class="bg-gradient-1"></div>
-    <div class="bg-gradient-2"></div>
-    <div class="grid-overlay"></div>
+  <a class="skip-link" href="#work">Skip to work</a>
+  <div class="site-shell">
+    <header class="nav" data-nav>
+      <a class="wordmark" href="#top" aria-label="Abhiroop Padate home"><span>AP</span><i>↗</i></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <nav id="nav-links" aria-label="Primary navigation">
+        <a href="#about">About</a><a href="#work">Work</a><a href="#research">Research</a><a href="#skills">Skills</a><a href="#contact">Contact</a>
+      </nav>
+    </header>
 
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <a href="#" class="logo">AP<span>.</span></a>
-            <div class="menu-toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="#about" class="nav-link">About</a></li>
-                <li><a href="#projects" class="nav-link">Projects</a></li>
-                <li><a href="#publications" class="nav-link">Publications</a></li>
-                <li><a href="#skills" class="nav-link">Skills</a></li>
-                <li><a href="#achievements" class="nav-link">Achievements</a></li>
-            </ul>
+    <main id="top">
+      <section class="hero section-wrap" aria-labelledby="hero-title">
+        <div class="hero-grid"></div><div class="hero-orbit orbit-a"></div><div class="hero-orbit orbit-b"></div>
+        <div class="signal-line signal-hero" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="hero-copy" data-reveal>
+          <p class="eyebrow"><span class="pulse-dot"></span> Undergraduate researcher · Mumbai / Thane</p>
+          <h1 id="hero-title">I turn real-world <em>signals</em> into useful intelligence.</h1>
+          <p class="hero-lede">Researching and building at the edge of biomedical machine learning, wireless sensing, computer vision, geospatial analytics, and embedded systems.</p>
+          <div class="hero-actions"><a class="button button-primary" href="#work">Explore the work <span>↓</span></a><a class="text-link" href="assets/Abhiroop_Padate_CV.pdf" download>Download CV <span>↗</span></a></div>
+          <div class="hero-metrics" aria-label="Profile highlights"><div><strong>9.89</strong><span>CGPA / 10</span></div><div><strong>7</strong><span>Research papers</span></div><div><strong>1</strong><span>Patent application</span></div></div>
         </div>
-    </nav>
+        <div class="hero-portrait" data-reveal data-delay="140"><div class="portrait-frame"><img src="assets/abhiroop-padate.jpg" alt="Portrait of Abhiroop Padate" /><div class="portrait-label">Research / systems / impact</div></div><span class="portrait-note">01 — Signal to system</span></div>
+      </section>
 
-    <main>
-        <!-- Hero Section -->
-        <section id="hero" class="hero-section fade-in">
-            <div class="hero-content">
-                <div class="badge">👋 Hello, I'm</div>
-                <h1 class="hero-title">Abhiroop <span class="gradient-text">Padate</span></h1>
-                <h2 class="hero-subtitle">Building intelligent systems that bridge AI research & real-world applications.</h2>
-                <p class="hero-description">
-                    Computer & Communication Engineering student (Honours in Data Science) at K. J. Somaiya College of Engineering. 
-                    <br><i class="fas fa-map-marker-alt"></i> Thane, Maharashtra, India
-                </p>
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <span class="stat-number">9.89</span>
-                        <span class="stat-label">CGPA</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">5</span>
-                        <span class="stat-label">Publications</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">1</span>
-                        <span class="stat-label">Patent</span>
-                    </div>
-                </div>
-                <div class="cta-buttons">
-                    <a href="#projects" class="btn btn-primary">View My Work</a>
-                    <a href="mailto:abhyroop.padate@gmail.com" class="btn btn-secondary">Get In Touch</a>
-                </div>
-                <div class="social-links">
-                    <a href="https://linkedin.com/in/abhirooppadate" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                    <a href="https://github.com/abhirooppadate" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                    <a href="mailto:abhyroop.padate@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
-                </div>
-            </div>
-        </section>
+      <section id="about" class="intro section-wrap section-split" data-reveal>
+        <div><p class="eyebrow">01 / The throughline</p><h2>Different data. Same instinct: make it <em>work in the world.</em></h2></div>
+        <div class="intro-copy"><p>I am a Computer & Communication Engineering student with Honours in Data Science at K. J. Somaiya College of Engineering. My work sits where messy physical signals meet practical software.</p><p>From Channel State Information and sEMG to motion capture and satellite imagery, I build pipelines that sense, explain, and act—often on constrained hardware and always with the end user in view.</p><a class="text-link" href="https://www.linkedin.com/in/abhirooppadate" target="_blank" rel="noreferrer">More on LinkedIn <span>↗</span></a></div>
+      </section>
 
-        <!-- About Section -->
-        <section id="about" class="section reveal">
-            <h2 class="section-title">About <span class="gradient-text">Me</span></h2>
-            <div class="about-container glass-card">
-                <p class="about-text">
-                    I enjoy solving challenging engineering problems across Machine Learning, Computer Vision, Wireless Sensing, Biomechanics, Embedded AI, and Geospatial Analytics. I focus on taking research ideas to working prototypes using Python, Linux, deep learning, and signal processing.
-                </p>
-                <p class="about-text">
-                    Currently, I am experimenting with wireless sensing + transformers and compressed, low-latency models for embedded inference. I am also the proud founder of Forge3D.
-                </p>
-                
-                <h3 class="subsection-title mt-4">Current Interests</h3>
-                <div class="interests-grid">
-                    <div class="interest-item"><i class="fas fa-brain"></i> Machine Learning & Deep Learning</div>
-                    <div class="interest-item"><i class="fas fa-eye"></i> Computer Vision</div>
-                    <div class="interest-item"><i class="fas fa-wifi"></i> Wi‑Fi CSI & Wireless Sensing</div>
-                    <div class="interest-item"><i class="fas fa-wave-square"></i> Signal Processing</div>
-                    <div class="interest-item"><i class="fas fa-microchip"></i> Biomedical & Embedded AI</div>
-                    <div class="interest-item"><i class="fas fa-globe-americas"></i> Geospatial Analytics & ML Systems</div>
-                </div>
-            </div>
-        </section>
+      <section class="signal-map section-wrap" aria-labelledby="signal-title" data-reveal>
+        <div class="section-heading"><div><p class="eyebrow">02 / Research map</p><h2 id="signal-title">One signal path, four <em>frontiers.</em></h2></div><p>Follow the line from sensing to a system someone can use.</p></div>
+        <div class="map-grid"><div class="map-line" aria-hidden="true"></div><article class="map-node"><span>01</span><h3>Biomedical ML</h3><p>Joint moments, gait events, sEMG, and biomechanical trajectories.</p></article><article class="map-node"><span>02</span><h3>Wireless sensing</h3><p>Wi‑Fi CSI, signal processing, and device-free activity recognition.</p></article><article class="map-node"><span>03</span><h3>Edge AI</h3><p>Assistive devices, embedded inference, sensors, and real-time feedback.</p></article><article class="map-node"><span>04</span><h3>Geospatial ML</h3><p>Remote sensing, NDVI, land-cover classification, and environmental risk.</p></article></div>
+      </section>
 
-        <!-- Projects Section -->
-        <section id="projects" class="section reveal">
-            <h2 class="section-title">Featured <span class="gradient-text">Projects</span></h2>
-            <div class="projects-grid">
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-glasses"></i></div>
-                    <h3 class="project-title">Blind Cap — ChaturChakshu</h3>
-                    <p class="project-desc">Wearable visual guidance system using 2D LiDAR and YOLOv8. Integrates Hugging Face LLM using LoRA optimization for contextual, real-time audio feedback.</p>
-                    <div class="tech-tags"><span>Python</span><span>YOLOv8</span><span>Hugging Face</span><span>LoRA</span><span>Embedded AI</span></div>
-                </div>
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-broadcast-tower"></i></div>
-                    <h3 class="project-title">Wi‑Fi CSI Human Activity Recognition</h3>
-                    <p class="project-desc">Device-free human activity recognition pipeline with 87% accuracy. Implemented PCA feature extraction and Transformer-based models.</p>
-                    <div class="tech-tags"><span>Python</span><span>TensorFlow</span><span>Signal Processing</span><span>Deep Learning</span></div>
-                </div>
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-shoe-prints"></i></div>
-                    <h3 class="project-title">IMU-Based Gait Analysis</h3>
-                    <p class="project-desc">Developed IMU-based motion tracking and gait phase recognition using deep learning models and synthetic data in Python and MATLAB.</p>
-                    <div class="tech-tags"><span>Python</span><span>MATLAB</span><span>Deep Learning</span></div>
-                </div>
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-video"></i></div>
-                    <h3 class="project-title">Video-Based Gait Tracking</h3>
-                    <p class="project-desc">Used YOLOv12, MediaPipe and PyTorch for pose detection and joint motion estimation from sagittal-plane videos.</p>
-                    <div class="tech-tags"><span>PyTorch</span><span>YOLOv12</span><span>MediaPipe</span><span>Computer Vision</span></div>
-                </div>
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-tree"></i></div>
-                    <h3 class="project-title">Deforestation Prediction (SGNP)</h3>
-                    <p class="project-desc">Built ML-based GIS model in QGIS and Python for land-cover classification and forest loss prediction using Sentinel-2 imagery.</p>
-                    <div class="project-highlight"><i class="fas fa-star"></i> 95.7% Balanced Accuracy · 0.992 ROC-AUC</div>
-                </div>
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-route"></i></div>
-                    <h3 class="project-title">Optimized Route Planning for RTN Trucks</h3>
-                    <p class="project-desc">Applied QGIS, GPS, and PyGAD for route optimization and truck load sharing in postal logistics.</p>
-                    <div class="tech-tags"><span>QGIS</span><span>PyGAD</span><span>Python</span><span>Logistics</span></div>
-                </div>
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-shield-alt"></i></div>
-                    <h3 class="project-title">Smart Tourist Safety & Response System</h3>
-                    <p class="project-desc">Developed AI-based client application using Python, PyTorch, React, and Node.js for real-time safety monitoring.</p>
-                    <div class="tech-tags"><span>Python</span><span>PyTorch</span><span>React</span><span>Node.js</span></div>
-                </div>
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-bicycle"></i></div>
-                    <h3 class="project-title">Automatic Gearing Kit for Bicycle</h3>
-                    <p class="project-desc">Mechatronic system for automatic gear shifting using ML models and micro-controllers.</p>
-                    <div class="tech-tags"><span>Micro-controllers</span><span>ML</span><span>Mechatronics</span></div>
-                </div>
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-credit-card"></i></div>
-                    <h3 class="project-title">CredDhwani</h3>
-                    <p class="project-desc">AI-powered credit risk analysis platform — end-to-end ML pipeline for automated applicant assessment and scoring.</p>
-                    <div class="tech-tags"><span>Machine Learning</span><span>Python</span><span>FinTech</span></div>
-                </div>
-                <div class="project-card glass-card">
-                    <div class="project-icon"><i class="fas fa-dumbbell"></i></div>
-                    <h3 class="project-title">Gym Tracker AI</h3>
-                    <p class="project-desc">AI application to track workouts and exercises using computer vision.</p>
-                    <div class="tech-tags"><span>Python</span><span>Computer Vision</span><span>Jupyter Notebook</span></div>
-                </div>
-            </div>
-        </section>
+      <section id="work" class="work section-wrap" data-reveal>
+        <div class="section-heading"><div><p class="eyebrow">03 / Featured work</p><h2>Built from research questions, shipped as <em>systems.</em></h2></div><p>Selected projects from research labs, coursework, competitions, and applied engineering.</p></div>
+        <div class="filter-row" role="group" aria-label="Filter projects"><button class="filter active" data-filter="all">All work</button><button class="filter" data-filter="research">Research</button><button class="filter" data-filter="systems">Systems</button><button class="filter" data-filter="impact">Impact</button></div>
+        <div class="project-grid">
+          <article class="project-card project-featured" data-category="research" data-project="wifi"><div class="project-top"><span class="project-index">01</span><span class="project-kind">Research · 2025—2026</span></div><h3>Wi‑Fi CSI-Based Human Activity Classification</h3><p>Device-free ambient sensing using commodity Wi‑Fi NICs, PCA filtering, Transformer-based models, and deep neural networks.</p><div class="result"><strong>85.10%</strong><span>classification accuracy<br />0.8511 Macro F1</span></div><div class="tags"><span>Python</span><span>TensorFlow</span><span>Signal Processing</span><span>Deep Learning</span></div><button class="card-link" data-open-project="wifi">Read case note <span>↗</span></button></article>
+          <article class="project-card" data-category="research" data-project="gait"><div class="project-top"><span class="project-index">02</span><span class="project-kind">Computer vision · 2024—2025</span></div><h3>Video-Based Gait Tracking & Biomechanical Analysis</h3><p>Markerless motion capture from sagittal and diagonal feeds, with keypoint extraction, joint calculations, LSTM sequences, and form-deviation detection.</p><div class="tags"><span>YOLOv12</span><span>MediaPipe</span><span>TensorFlow</span><span>LSTM</span></div><button class="card-link" data-open-project="gait">Read case note <span>↗</span></button></article>
+          <article class="project-card" data-category="impact" data-project="tourist"><div class="project-top"><span class="project-index">03</span><span class="project-kind">SIH 2025 · Team Sixquels</span></div><h3>Smart Tourist Safety & Incident Response</h3><p>Real-time anomaly detection, dynamic geofencing, verified identity credentials, and a responsive incident-response platform. Ranked 4th in university selection.</p><div class="tags"><span>PyTorch</span><span>React.js</span><span>Node.js</span><span>Geospatial</span></div><button class="card-link" data-open-project="tourist">Read case note <span>↗</span></button></article>
+          <article class="project-card" data-category="systems" data-project="blind"><div class="project-top"><span class="project-index">04</span><span class="project-kind">Assistive edge AI · 2023—2024</span></div><h3>Blind Cap — ChaturChakshu</h3><p>Wearable visual guidance with Intel RealSense, TF‑Luna, YDLIDAR X2, YOLOv8, and a quantized LoRA-adapted language model for contextual audio cues.</p><div class="tags"><span>YOLOv8</span><span>LiDAR</span><span>LoRA</span><span>Embedded AI</span></div><button class="card-link" data-open-project="blind">Read case note <span>↗</span></button></article>
+        </div>
+      </section>
 
-        <!-- Publications Section -->
-        <section id="publications" class="section reveal">
-            <h2 class="section-title">Publications & <span class="gradient-text">Patent</span></h2>
-            <div class="publications-container glass-card">
-                <div class="patent-highlight">
-                    <i class="fas fa-certificate"></i>
-                    <div>
-                        <h4>Published Patent</h4>
-                        <p>Digital Pinch Gauge</p>
-                    </div>
-                </div>
-                
-                <ul class="publications-list">
-                    <li>
-                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
-                        <div class="pub-details">
-                            <h4>Prediction of Joint Moments from Kinematics Using Machine Learning</h4>
-                            <span class="pub-publisher">Elsevier</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
-                        <div class="pub-details">
-                            <h4>Deforestation Risk Prediction Using Multi‑Temporal NDVI</h4>
-                            <span class="pub-publisher">IEEE EarthSense</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
-                        <div class="pub-details">
-                            <h4>Wind Speed Forecasting Using Hybrid Machine Learning</h4>
-                            <span class="pub-publisher">Springer LNNS</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
-                        <div class="pub-details">
-                            <h4>Wi‑Fi CSI-Based Human Activity Classification</h4>
-                            <span class="pub-publisher">Taylor & Francis</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="pub-icon"><i class="fas fa-book-open"></i></div>
-                        <div class="pub-details">
-                            <h4>Surface EMG-Based Lower Limb Activity Recognition</h4>
-                            <span class="pub-publisher">Taylor & Francis</span>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </section>
+      <section id="research" class="research section-wrap" data-reveal>
+        <div class="section-heading"><div><p class="eyebrow">04 / Research record</p><h2>Evidence that travels beyond the <em>prototype.</em></h2></div><p>Exact publication dates are retained where available; accepted work is clearly marked.</p></div>
+        <div class="research-toolbar"><span>7 papers · 1 patent application</span><div class="filter-row" role="group" aria-label="Filter research"><button class="pub-filter active" data-pub-filter="all">All</button><button class="pub-filter" data-pub-filter="journal">Journal</button><button class="pub-filter" data-pub-filter="conference">Conference</button><button class="pub-filter" data-pub-filter="accepted">Accepted</button></div></div>
+        <div class="publication-list">
+          <article class="publication" data-pub-kind="journal"><span class="pub-year">2024</span><div><h3>Prediction of Joint Moments from Kinematics Using Machine Learning in Children with Congenital Talipes Equino Varus and Typically Developing Peers</h3><p>Journal of Orthopaedics · Elsevier · Vol. 57, pp. 83–89</p></div><a href="https://doi.org/10.1016/j.jor.2024.06.016" target="_blank" rel="noreferrer">DOI ↗</a></article>
+          <article class="publication" data-pub-kind="journal"><span class="pub-year">2026</span><div><h3>Predictive Modelling of Deforestation Susceptibility in Sanjay Gandhi National Park Using Machine Learning and Remote Sensing Technologies</h3><p>Sensing and Imaging · Springer Nature · Vol. 27, Article 176</p></div><a href="https://doi.org/10.1007/s11220-026-00862-z" target="_blank" rel="noreferrer">DOI ↗</a></article>
+          <article class="publication" data-pub-kind="conference"><span class="pub-year">Sep 2025</span><div><h3>Deforestation Risk Prediction Using Multi-Temporal NDVI and Machine Learning</h3><p>IEEE EarthSense · Hyderabad · Oral presenter · 95.7% balanced accuracy</p></div><a href="https://doi.org/10.1109/earthsense66084.2025.11297320" target="_blank" rel="noreferrer">DOI ↗</a></article>
+          <article class="publication" data-pub-kind="conference"><span class="pub-year">Jun 2025</span><div><h3>Surface EMG-Based Real-Time Detection of Lower Limb Activities Using Machine Learning</h3><p>ICTEAH 2025 · Mumbai · Oral presenter · 95.64% accuracy</p></div><span class="pub-status">Conference</span></article>
+          <article class="publication" data-pub-kind="conference"><span class="pub-year">Oct 2025</span><div><h3>Wind Speed Forecasting Using Hybrid Machine Learning Approach</h3><p>ICTCS 2025 · Springer LNNS Series · 85% predictive accuracy</p></div><span class="pub-status">Conference</span></article>
+          <article class="publication" data-pub-kind="conference"><span class="pub-year">Mar 2026</span><div><h3>Wi‑Fi CSI-Based Human Activity Classification Using Commodity Hardware</h3><p>ICTEAH 2026 · Taylor & Francis · Oral presenter · 85.10% accuracy</p></div><span class="pub-status">Conference</span></article>
+          <article class="publication" data-pub-kind="accepted"><span class="pub-year">Mar 2026</span><div><h3>An Adaptive and Computationally Efficient IMU-Based Framework for Gait Event Detection and Spatiotemporal Parameter Estimation</h3><p>ICTEAH 2026 · Paper ID 326 · Accepted / publication link pending</p></div><span class="pub-status accepted">Accepted</span></article>
+          <article class="publication patent-row" data-pub-kind="journal"><span class="pub-year">17 Oct 2025</span><div><h3>A Pinch Gauge with an Adjustable Height Mechanism</h3><p>Indian Patent Application No. 202521069990 A · BETiC, IIT Bombay & KJSCE</p></div><span class="pub-status patent">Patent</span></article>
+        </div>
+      </section>
 
-        <!-- Tech Stack Section -->
-        <section id="skills" class="section reveal">
-            <h2 class="section-title">Tech <span class="gradient-text">Stack</span></h2>
-            <div class="skills-grid">
-                <div class="skill-category glass-card">
-                    <h3><i class="fas fa-code"></i> Languages</h3>
-                    <div class="tech-tags">
-                        <span>Python</span><span>SQL</span><span>MATLAB</span><span>C++</span>
-                    </div>
-                </div>
-                <div class="skill-category glass-card">
-                    <h3><i class="fas fa-robot"></i> ML / AI</h3>
-                    <div class="tech-tags">
-                        <span>TensorFlow</span><span>PyTorch</span><span>Scikit‑learn</span><span>Hugging Face</span><span>Transformers</span>
-                    </div>
-                </div>
-                <div class="skill-category glass-card">
-                    <h3><i class="fas fa-tools"></i> Tools & Systems</h3>
-                    <div class="tech-tags">
-                        <span>Linux</span><span>Docker</span><span>Git</span><span>Arduino</span><span>Embedded toolchains</span>
-                    </div>
-                </div>
-                <div class="skill-category glass-card">
-                    <h3><i class="fas fa-layer-group"></i> Domains</h3>
-                    <div class="tech-tags">
-                        <span>Computer Vision</span><span>Signal Processing</span><span>Wireless Sensing (Wi‑Fi CSI)</span><span>GIS</span><span>Biomedical AI</span><span>Embedded AI</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+      <section id="skills" class="skills section-wrap" data-reveal><div class="section-heading"><div><p class="eyebrow">05 / Capability stack</p><h2>The tools behind the <em>signal path.</em></h2></div><p>Technical breadth, organized around the work rather than a keyword wall.</p></div><div class="skill-columns"><div><span class="skill-label">Machine learning</span><p>PyTorch · TensorFlow · Scikit-learn · XGBoost · CNNs · RNNs/LSTMs · Transformers · Hugging Face / LoRA</p></div><div><span class="skill-label">Vision & motion</span><p>OpenCV · YOLOv8/v12 · MediaPipe · Motion capture · Biomechanical modeling · IMUs · sEMG</p></div><div><span class="skill-label">Embedded & hardware</span><p>Arduino · ESP32 · STM32 · Raspberry Pi · LiDAR · ToF sensors · Load cells · Signal conditioning</p></div><div><span class="skill-label">Geospatial & engineering</span><p>QGIS · GDAL · Sentinel/Landsat · NDVI · React.js · Node.js · Flask · Docker · Linux · Git</p></div></div></section>
 
-        <!-- Achievements Section -->
-        <section id="achievements" class="section reveal">
-            <h2 class="section-title"><span class="gradient-text">Achievements</span></h2>
-            <div class="achievements-container glass-card">
-                <ul class="achievements-list">
-                    <li><i class="fas fa-medal trophy-icon"></i> <strong>2nd Place</strong> — F1 in Schools (India National Finals)</li>
-                    <li><i class="fas fa-scroll trophy-icon"></i> <strong>Published Patent</strong> — Digital Pinch Gauge</li>
-                    <li><i class="fas fa-file-alt trophy-icon"></i> <strong>Five</strong> Research Publications</li>
-                    <li><i class="fas fa-rocket trophy-icon"></i> <strong>Founder</strong> — Forge3D</li>
-                </ul>
-            </div>
-        </section>
+      <section id="contact" class="contact section-wrap" data-reveal><div class="contact-panel"><div><p class="eyebrow">06 / Open channel</p><h2>Have a hard signal, a useful question, or a system that needs building?</h2></div><div><p>Let’s connect around research, applied AI, embedded systems, or the next prototype that needs to leave the notebook.</p><a class="button button-primary" href="mailto:abhyroop.padate@gmail.com">Start a conversation <span>↗</span></a></div></div></section>
     </main>
-
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <h2 class="footer-logo">AP<span>.</span></h2>
-            <p>Always exploring new datasets, sensors and models.</p>
-            <div class="footer-social">
-                <a href="https://linkedin.com/in/abhirooppadate" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/abhirooppadate" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="mailto:abhyroop.padate@gmail.com"><i class="fas fa-envelope"></i></a>
-            </div>
-            <p class="copyright">&copy; <span id="year"></span> Abhiroop Padate. All rights reserved.</p>
-            <p class="footer-note">Built from scratch with ❤️</p>
-        </div>
-    </footer>
-
-    <!-- Custom Script -->
-    <script src="script.js"></script>
+    <footer class="footer section-wrap"><span>© 2026 Abhiroop Padate</span><span>Built from signals, systems, and a little curiosity.</span><div><a href="https://github.com/AbhiroopPadate" target="_blank" rel="noreferrer">GitHub ↗</a><a href="https://orcid.org/0009-0003-9934-3694" target="_blank" rel="noreferrer">ORCID ↗</a></div></footer>
+  </div>
+  <dialog id="project-dialog" aria-labelledby="dialog-title"><button class="dialog-close" data-close-dialog aria-label="Close case note">×</button><p class="eyebrow">Case note</p><h2 id="dialog-title"></h2><div id="dialog-body"></div></dialog>
 </body>
 </html>
