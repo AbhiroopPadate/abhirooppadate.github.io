@@ -41,6 +41,8 @@ const launcher = $('#ai-launcher');
 const studio = $('#ai-studio');
 const navLink = document.querySelector('a[href="#ai-studio"]');
 const clearButton = $('#ai-clear');
+$('#ai-model-label').textContent = 'SmolLM2 · 360M · universal local model';
+$('#ai-hint').textContent = 'First launch downloads a compact local model once; later visits use the browser cache.';
 const closeButton = document.createElement('button');
 closeButton.className = 'ai-close';
 closeButton.type = 'button';
