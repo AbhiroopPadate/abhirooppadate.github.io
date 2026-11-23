@@ -24,3 +24,9 @@ dialog{width:min(650px,calc(100% - 32px));padding:2rem;border:0;border-radius:18
 .ai-studio{width:min(560px,calc(100vw - 32px))}.ai-studio.ai-open .ai-console-grid{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}.ai-studio.ai-open .ai-skills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:min-content;max-height:154px;border-right:0;border-bottom:1px solid #46505e;padding:.8rem}.ai-studio.ai-open .ai-kicker{grid-column:1/-1}.ai-studio.ai-open .ai-chat{grid-column:1;grid-row:2}.ai-studio.ai-open .ai-messages{min-height:230px}.ai-studio.ai-open .ai-skills button{min-width:0}.ai-studio.ai-open .ai-privacy-note{display:none}@media(max-width:680px){.ai-studio{width:calc(100vw - 32px)}.ai-studio.ai-open .ai-skills{grid-template-columns:1fr 1fr;max-height:145px}.ai-studio.ai-open .ai-messages{min-height:190px}}
 .ai-studio{height:min(760px,calc(100vh - 96px))}.ai-studio.ai-open .ai-console{min-height:0}.ai-studio.ai-open .ai-console-grid{overflow:hidden}.ai-studio.ai-open .ai-chat{min-height:0}.ai-studio.ai-open .ai-messages{min-height:0}
 .ai-studio.ai-open .ai-proof{display:none}.ai-studio.ai-open .ai-studio-heading p{max-width:500px}
+.ai-studio.ai-open{display:flex!important;flex-direction:column;gap:.55rem;overflow:hidden}
+.ai-studio.ai-open .ai-console{display:flex;flex:1 1 auto;flex-direction:column;height:auto!important;min-height:0;overflow:hidden}
+.ai-studio.ai-open .ai-console-grid{flex:1 1 auto;min-height:0}
+.ai-studio.ai-open .ai-actions{position:static!important;flex:0 0 auto;margin:0;min-height:34px}
+.ai-studio.ai-open .ai-actions>span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:680px){.ai-studio.ai-open .ai-actions>span{display:none}}
