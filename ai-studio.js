@@ -27,6 +27,7 @@ const status = $('#ai-status');
 const loadButton = $('#ai-load');
 const sendButton = $('#ai-send');
 const progress = $('#ai-progress');
+const progressWrap = document.createElement('div');
 const input = $('#ai-input');
 const launcher = $('#ai-launcher');
 const studio = $('#ai-studio');
@@ -42,6 +43,13 @@ const agentProof = document.createElement('div');
 agentProof.className = 'ai-proof';
 agentProof.innerHTML = '<span>AGENT ARCHITECTURE</span><strong>Public context → skill routing → streamed local inference</strong><small>Built into the portfolio to demonstrate grounded responses, useful agent behaviors, and privacy by design.</small>';
 document.querySelector('.ai-studio-heading')?.append(agentProof);
+
+progressWrap.className = 'ai-progress-wrap';
+progressWrap.id = 'ai-progress-wrap';
+progressWrap.hidden = true;
+progressWrap.innerHTML = '<div class="ai-progress" role="progressbar" aria-label="Local AI is working"><span></span></div><span class="ai-progress-label">Thinking on this device…</span>';
+progress.replaceWith(progressWrap);
+const progressBar = progressWrap.querySelector('.ai-progress');
 
 function setChatEnabled(enabled) {
   input.disabled = !enabled;
@@ -60,19 +68,104 @@ function setStatus(text, state = 'idle') {
   status.dataset.state = state;
 }
 
+function appendInline(target, text) {
+  const parts = String(text).split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  parts.forEach((part) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const strong = document.createElement('strong');
+      strong.textContent = part.slice(2, -2);
+      target.append(strong);
+    } else if (part.startsWith('`') && part.endsWith('`')) {
+      const code = document.createElement('code');
+      code.textContent = part.slice(1, -1);
+      target.append(code);
+    } else if (part) target.append(document.createTextNode(part));
+  });
+}
+
+function renderAssistantText(target, text) {
+  target.replaceChildren();
+  const lines = String(text || '').replace(/\r/g, '').split('\n');
+  let list = null;
+  let listType = null;
+  const closeList = () => { list = null; listType = null; };
+  lines.forEach((line) => {
+    const bullet = line.match(/^\s*[-*•]\s+(.+)/);
+    const numbered = line.match(/^\s*\d+[.)]\s+(.+)/);
+    if (bullet || numbered) {
+      const nextType = bullet ? 'ul' : 'ol';
+      if (!list || listType !== nextType) {
+        closeList();
+        listType = nextType;
+        list = document.createElement(nextType);
+        target.append(list);
+      }
+      const item = document.createElement('li');
+      appendInline(item, (bullet || numbered)[1]);
+      list.append(item);
+      return;
+    }
+    closeList();
+    if (!line.trim()) return;
+    const paragraph = document.createElement('p');
+    appendInline(paragraph, line.trim());
+    target.append(paragraph);
+  });
+  if (!target.children.length) {
+    const paragraph = document.createElement('p');
+    paragraph.className = 'ai-typing';
+    paragraph.innerHTML = '<span></span><span></span><span></span>';
+    target.append(paragraph);
+  }
+}
+
 function addMessage(role, text) {
   const item = document.createElement('div');
   item.className = `ai-message ${role}`;
   const avatar = document.createElement('span');
   avatar.className = 'ai-avatar';
   avatar.textContent = role === 'assistant' ? 'AI' : 'YOU';
-  const body = document.createElement('p');
-  body.textContent = text;
-  item.append(avatar, body);
+  const bubble = document.createElement('div');
+  bubble.className = 'ai-bubble';
+  const meta = document.createElement('span');
+  meta.className = 'ai-message-meta';
+  meta.textContent = role === 'assistant' ? 'LOCAL AGENT' : 'YOU';
+  const body = document.createElement('div');
+  body.className = 'ai-message-content';
+  item.append(avatar, bubble);
+  bubble.append(meta, body);
+  if (role === 'assistant') renderAssistantText(body, text);
+  else { const paragraph = document.createElement('p'); paragraph.textContent = text; body.append(paragraph); }
   messages.append(item);
   messages.scrollTop = messages.scrollHeight;
   return body;
 }
+
+function setMessageText(body, text) {
+  renderAssistantText(body, text);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function normalizeInitialMessage() {
+  messages.querySelectorAll('.ai-message').forEach((item) => {
+    if (item.querySelector('.ai-bubble')) return;
+    const avatar = item.querySelector('.ai-avatar');
+    const paragraph = item.querySelector('p');
+    if (!avatar || !paragraph) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'ai-bubble';
+    const meta = document.createElement('span');
+    meta.className = 'ai-message-meta';
+    meta.textContent = item.classList.contains('user') ? 'YOU' : 'LOCAL AGENT';
+    const content = document.createElement('div');
+    content.className = 'ai-message-content';
+    content.append(paragraph);
+    bubble.append(meta, content);
+    item.append(bubble);
+  });
+}
+
+normalizeInitialMessage();
 
 function fallback(prompt) {
   const q = prompt.toLowerCase();
@@ -85,17 +178,18 @@ function fallback(prompt) {
 
 function updateProgress(report) {
   const value = Math.max(0, Math.min(100, Math.round((report.progress || 0) * 100)));
-  progress.querySelector('span').style.width = `${value}%`;
+  progressWrap.hidden = false;
+  progressBar.querySelector('span').style.width = `${value}%`;
   setStatus(value ? `Loading local model · ${value}%` : 'Loading local model…', 'loading');
 }
 
 function setThinking(active) {
-  progress.classList.toggle('is-thinking', active);
-  progress.hidden = !active;
+  progressBar.classList.toggle('is-thinking', active);
+  progressWrap.hidden = !active;
   if (active) {
-    progress.querySelector('span').style.width = '42%';
+    progressBar.querySelector('span').style.width = '42%';
   } else {
-    progress.querySelector('span').style.width = '0%';
+    progressBar.querySelector('span').style.width = '0%';
   }
 }
 
@@ -116,7 +210,7 @@ async function initModel() {
   if (engine || loading) return;
   loading = true;
   loadButton.disabled = true;
-  progress.hidden = false;
+  progressWrap.hidden = false;
   setStatus('Downloading local model…', 'loading');
   try {
     let webGpuError = null;
@@ -162,7 +256,7 @@ async function initModel() {
     $('#ai-hint').textContent = 'The browser could not load either the WebGPU or WASM local model. Check the connection for the first model download, then retry; prompts remain private and locked until ready.';
   } finally {
     loading = false;
-    progress.hidden = true;
+    progressWrap.hidden = true;
   }
 }
 
@@ -188,23 +282,24 @@ async function answer(prompt) {
       let text = '';
       for await (const chunk of stream) {
         text += chunk.choices?.[0]?.delta?.content || '';
-        body.textContent = text;
-        if (text) setThinking(false);
+        setMessageText(body, text);
         messages.scrollTop = messages.scrollHeight;
       }
+      if (!text.trim()) setMessageText(body, 'The local model returned no text. Try the prompt again.');
     } else {
-      const transcript = [PUBLIC_CONTEXT, ...history.slice(-7, -1).map((item) => `${item.role === 'user' ? 'User' : 'Assistant'}: ${item.content}`), `User: ${prompt}`, 'Assistant:'].join('\n\n');
-      body.textContent = 'Generating locally on this device…';
-      const result = await localPipe(transcript, { max_new_tokens: 100, temperature: 0.35, do_sample: false, return_full_text: false });
-      body.textContent = result?.[0]?.generated_text?.trim() || 'The local model returned no text. Try the prompt again.';
-      setThinking(false);
+      const chatMessages = [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-7)];
+      setMessageText(body, 'Generating locally on this device…');
+      const result = await localPipe(chatMessages, { max_new_tokens: 220, temperature: 0.35, do_sample: false, repetition_penalty: 1.08, return_full_text: false });
+      const generated = result?.[0]?.generated_text;
+      const reply = Array.isArray(generated) ? generated.at(-1)?.content : generated;
+      setMessageText(body, String(reply || '').trim() || 'The local model returned no text. Try the prompt again.');
     }
     history.push({ role: 'assistant', content: body.textContent });
     setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : 'Local CPU model ready · private', 'ready');
   } catch (error) {
     engine = null;
     localPipe = null;
-    body.textContent = 'The local model stopped before completing this response. Re-initialize it and try again; no prompt was sent to a server.';
+    setMessageText(body, 'The local model stopped before completing this response. Re-initialize it and try again; no prompt was sent to a server.');
     setStatus('Model stopped · re-initialize', 'warn');
     setChatEnabled(false);
     loadButton.disabled = false;
@@ -248,5 +343,5 @@ document.querySelectorAll('[data-ai-prompt]').forEach((button) => button.addEven
 }));
 clearButton.addEventListener('click', () => {
   history.length = 0;
-  messages.innerHTML = '<div class="ai-message assistant"><span class="ai-avatar">AI</span><p>Chat cleared. I still only know the public portfolio knowledge embedded in this page.</p></div>';
+  messages.innerHTML = '<div class="ai-message assistant"><span class="ai-avatar">AI</span><div class="ai-bubble"><span class="ai-message-meta">LOCAL AGENT</span><div class="ai-message-content"><p>Chat cleared. I still only know the public portfolio knowledge embedded in this page.</p></div></div></div>';
 });
