@@ -94,11 +94,11 @@ async function initCpuModel() {
   env.allowLocalModels = false;
   env.useBrowserCache = true;
   setStatus('Preparing CPU fallback locally…', 'loading');
-  localPipe = await pipeline('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+  localPipe = await pipeline('text-generation', 'onnx-community/LFM2.5-350M-ONNX', {
     dtype: 'q4',
     progress_callback: updateProgress
   });
-  activeModel = { label: 'Qwen 2.5 · 0.5B · WASM CPU fallback' };
+  activeModel = { label: 'LFM 2.5 · 350M · WASM CPU fallback' };
   runtime = 'wasm';
 }
 
@@ -182,7 +182,8 @@ async function answer(prompt) {
       }
     } else {
       const transcript = [PUBLIC_CONTEXT, ...history.slice(-7, -1).map((item) => `${item.role === 'user' ? 'User' : 'Assistant'}: ${item.content}`), `User: ${prompt}`, 'Assistant:'].join('\n\n');
-      const result = await localPipe(transcript, { max_new_tokens: 220, temperature: 0.55, do_sample: true, return_full_text: false });
+      body.textContent = 'Generating locally on this device…';
+      const result = await localPipe(transcript, { max_new_tokens: 140, temperature: 0.45, do_sample: false, return_full_text: false });
       body.textContent = result?.[0]?.generated_text?.trim() || 'The local model returned no text. Try the prompt again.';
     }
     history.push({ role: 'assistant', content: body.textContent });
@@ -200,6 +201,13 @@ async function answer(prompt) {
   }
 }
 
+function submitPrompt() {
+  const prompt = input.value.trim();
+  if (!prompt || sendButton.disabled) return;
+  input.value = '';
+  void answer(prompt);
+}
+
 setChatEnabled(false);
 setPanel(false);
 launcher.addEventListener('click', () => setPanel(!studio.classList.contains('ai-open')));
@@ -208,10 +216,11 @@ navLink?.addEventListener('click', (event) => { event.preventDefault(); setPanel
 loadButton.addEventListener('click', initModel);
 $('#ai-form').addEventListener('submit', (event) => {
   event.preventDefault();
-  const prompt = input.value.trim();
-  if (!prompt || sendButton.disabled) return;
-  input.value = '';
-  answer(prompt);
+  submitPrompt();
+});
+sendButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  submitPrompt();
 });
 document.querySelectorAll('[data-ai-prompt]').forEach((button) => button.addEventListener('click', () => {
   $('#ai-input').value = button.dataset.aiPrompt;
