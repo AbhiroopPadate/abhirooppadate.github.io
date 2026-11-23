@@ -3,8 +3,10 @@ const MODELS = [
   { id: 'LFM2.5-350M-q4f16_1-MLC', label: 'LFM 2.5 · 350M · ultra-low-VRAM WebGPU' }
 ];
 let engine = null;
+let localPipe = null;
 let loading = false;
 let activeModel = null;
+let runtime = null;
 const history = [];
 
 const PUBLIC_CONTEXT = `You are Abhiroop Padate's local portfolio agent. You only know the public facts below. Never invent private information, contact details, passwords, files, browsing history, or unpublished personal data. If asked for private information, clearly say you do not have access to it. Be specific, useful, and honest about dates and DOI-pending work.
@@ -50,7 +52,7 @@ function setChatEnabled(enabled) {
 function setPanel(open) {
   studio.classList.toggle('ai-open', open);
   launcher.setAttribute('aria-expanded', String(open));
-  if (open) setTimeout(() => (engine ? input : loadButton).focus(), 40);
+  if (open) setTimeout(() => (engine || localPipe ? input : loadButton).focus(), 40);
 }
 
 function setStatus(text, state = 'idle') {
@@ -81,59 +83,73 @@ function fallback(prompt) {
   return 'I can explain the public projects, research record, AI/ML stack, and the design decisions behind Blind Cap. Try “Explain Blind Cap”, “Map the projects”, or “Summarize the publications.”';
 }
 
+function updateProgress(report) {
+  const value = Math.max(0, Math.min(100, Math.round((report.progress || 0) * 100)));
+  progress.querySelector('span').style.width = `${value}%`;
+  setStatus(value ? `Loading local model · ${value}%` : 'Loading local model…', 'loading');
+}
+
+async function initCpuModel() {
+  const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers/+esm');
+  env.allowLocalModels = false;
+  env.useBrowserCache = true;
+  setStatus('Preparing CPU fallback locally…', 'loading');
+  localPipe = await pipeline('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+    dtype: 'q4',
+    progress_callback: updateProgress
+  });
+  activeModel = { label: 'Qwen 2.5 · 0.5B · WASM CPU fallback' };
+  runtime = 'wasm';
+}
+
 async function initModel() {
   if (engine || loading) return;
-  if (!navigator.gpu) {
-    setStatus('WebGPU unavailable · model locked', 'warn');
-    loadButton.textContent = 'Use Chrome or Edge with WebGPU ↗';
-    $('#ai-hint').textContent = 'This browser does not expose WebGPU, so the local model cannot start here. Prompts stay locked for privacy.';
-    return;
-  }
   loading = true;
   loadButton.disabled = true;
   progress.hidden = false;
   setStatus('Downloading local model…', 'loading');
   try {
-    const adapter = await navigator.gpu.requestAdapter();
-    if (!adapter) throw new Error('WebGPU is present but no compatible GPU adapter was found.');
-    const { CreateMLCEngine } = await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm');
-    let lastError = null;
-    for (const candidate of MODELS) {
+    let webGpuError = null;
+    if (navigator.gpu) {
       try {
-        setStatus(`Preparing ${candidate.label.split(' · ')[0]} locally…`, 'loading');
-        engine = await CreateMLCEngine(candidate.id, {
-          initProgressCallback: (report) => {
-            const value = Math.max(0, Math.min(100, Math.round((report.progress || 0) * 100)));
-            progress.querySelector('span').style.width = `${value}%`;
-            setStatus(value ? `Loading local model · ${value}%` : 'Loading local model…', 'loading');
+        const adapter = await navigator.gpu.requestAdapter();
+        if (!adapter) throw new Error('WebGPU is present but no compatible GPU adapter was found.');
+        const { CreateMLCEngine } = await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm');
+        for (const candidate of MODELS) {
+          try {
+            setStatus(`Preparing ${candidate.label.split(' · ')[0]} locally…`, 'loading');
+            engine = await CreateMLCEngine(candidate.id, { initProgressCallback: updateProgress });
+            activeModel = candidate;
+            runtime = 'webgpu';
+            break;
+          } catch (error) {
+            webGpuError = error;
+            engine = null;
           }
-        });
-        activeModel = candidate;
-        break;
+        }
       } catch (error) {
-        lastError = error;
-        engine = null;
+        webGpuError = error;
       }
     }
-    if (!engine) throw lastError || new Error('No local model could be initialized.');
+    if (!engine) {
+      await initCpuModel();
+    }
     $('#ai-model-label').textContent = activeModel.label;
-    setStatus('Local model ready · private', 'ready');
+    setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : 'Local CPU model ready · private', 'ready');
     loadButton.textContent = 'Local model ready ✓';
-    $('#ai-hint').textContent = 'Prompts stay on this device. The model is cached locally for your next visit.';
+    $('#ai-hint').textContent = runtime === 'webgpu'
+      ? 'Prompts stay on this device. WebGPU is active and the model is cached locally.'
+      : 'WebGPU was unavailable, so the browser switched to a private WASM CPU model. It is cached locally for your next visit.';
     setChatEnabled(true);
     input.focus();
   } catch (error) {
     const detail = String(error?.message || error || '').toLowerCase();
     const memoryIssue = detail.includes('memory') || detail.includes('device was lost') || detail.includes('out of bounds');
     const adapterIssue = detail.includes('adapter') || detail.includes('webgpu');
-    setStatus(memoryIssue ? 'GPU memory limit · model locked' : adapterIssue ? 'No compatible GPU adapter · model locked' : 'WebLLM runtime unavailable · model locked', 'warn');
+    setStatus(memoryIssue ? 'GPU memory limit · CPU fallback unavailable' : adapterIssue ? 'Local CPU fallback unavailable' : 'Local runtime unavailable · model locked', 'warn');
     loadButton.disabled = false;
-    loadButton.textContent = memoryIssue ? 'Retry with low-memory model ↗' : 'Retry local model ↗';
-    $('#ai-hint').textContent = memoryIssue
-      ? 'The GPU rejected the first model. A smaller fallback was attempted; close GPU-heavy tabs and retry in Chrome or Edge.'
-      : adapterIssue
-        ? 'WebGPU is exposed, but this browser has no compatible GPU adapter available. Enable hardware acceleration, then retry in Chrome or Edge.'
-        : 'The WebLLM runtime could not start. Prompts remain locked; retry in a current Chrome or Edge build with hardware acceleration enabled.';
+    loadButton.textContent = 'Retry local model ↗';
+    $('#ai-hint').textContent = 'The browser could not load either the WebGPU or WASM local model. Check the connection for the first model download, then retry; prompts remain private and locked until ready.';
   } finally {
     loading = false;
     progress.hidden = true;
@@ -142,7 +158,7 @@ async function initModel() {
 
 async function answer(prompt) {
   addMessage('user', prompt);
-  if (!engine) {
+  if (!engine && !localPipe) {
     addMessage('assistant', 'Please initialize the local model above before sending prompts. Your chat stays locked until the model is ready.');
     return;
   }
@@ -151,29 +167,36 @@ async function answer(prompt) {
   const body = addMessage('assistant', '');
   history.push({ role: 'user', content: prompt });
   try {
-    const stream = await engine.chat.completions.create({
-      messages: [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-6)],
-      temperature: 0.55,
-      max_tokens: 420,
-      stream: true
-    });
-    let text = '';
-    for await (const chunk of stream) {
-      text += chunk.choices?.[0]?.delta?.content || '';
-      body.textContent = text;
-      messages.scrollTop = messages.scrollHeight;
+    if (engine) {
+      const stream = await engine.chat.completions.create({
+        messages: [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-6)],
+        temperature: 0.55,
+        max_tokens: 420,
+        stream: true
+      });
+      let text = '';
+      for await (const chunk of stream) {
+        text += chunk.choices?.[0]?.delta?.content || '';
+        body.textContent = text;
+        messages.scrollTop = messages.scrollHeight;
+      }
+    } else {
+      const transcript = [PUBLIC_CONTEXT, ...history.slice(-7, -1).map((item) => `${item.role === 'user' ? 'User' : 'Assistant'}: ${item.content}`), `User: ${prompt}`, 'Assistant:'].join('\n\n');
+      const result = await localPipe(transcript, { max_new_tokens: 220, temperature: 0.55, do_sample: true, return_full_text: false });
+      body.textContent = result?.[0]?.generated_text?.trim() || 'The local model returned no text. Try the prompt again.';
     }
-    history.push({ role: 'assistant', content: text });
-    setStatus('Local model ready · private', 'ready');
+    history.push({ role: 'assistant', content: body.textContent });
+    setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : 'Local CPU model ready · private', 'ready');
   } catch (error) {
     engine = null;
+    localPipe = null;
     body.textContent = 'The local model stopped before completing this response. Re-initialize it and try again; no prompt was sent to a server.';
     setStatus('Model stopped · re-initialize', 'warn');
     setChatEnabled(false);
     loadButton.disabled = false;
     loadButton.textContent = 'Re-initialize local model ↗';
   } finally {
-    if (engine) sendButton.disabled = false;
+    if (engine || localPipe) sendButton.disabled = false;
   }
 }
 
