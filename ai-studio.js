@@ -9,6 +9,7 @@ let activeModel = null;
 let runtime = null;
 let promptInFlight = false;
 const history = [];
+const GENERATION_TIMEOUT_MS = 18000;
 
 const PUBLIC_CONTEXT = `You are Abhiroop Padate's local portfolio agent. You only know the public facts below. Never invent private information, contact details, passwords, files, browsing history, or unpublished personal data. If asked for private information, clearly say you do not have access to it. Be specific, useful, and honest about dates and DOI-pending work.
 
@@ -188,6 +189,13 @@ function usableReply(reply) {
   return normalized.length >= 36 && !/^(assistant|user|system)\s*:/i.test(normalized);
 }
 
+function withGenerationTimeout(task) {
+  return Promise.race([
+    task(),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Local generation timed out.')), GENERATION_TIMEOUT_MS))
+  ]);
+}
+
 function updateProgress(report) {
   const value = Math.max(0, Math.min(100, Math.round((report.progress || 0) * 100)));
   progressWrap.hidden = false;
@@ -285,19 +293,22 @@ async function answer(prompt) {
   history.push({ role: 'user', content: prompt });
   try {
     if (engine) {
-      const stream = await engine.chat.completions.create({
-        messages: [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-6)],
-        temperature: 0.55,
-        max_tokens: 520,
-        stream: true
+      const text = await withGenerationTimeout(async () => {
+        const stream = await engine.chat.completions.create({
+          messages: [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-6)],
+          temperature: 0.55,
+          max_tokens: 320,
+          stream: true
+        });
+        let streamed = '';
+        for await (const chunk of stream) {
+          streamed += chunk.choices?.[0]?.delta?.content || '';
+          setMessageText(body, streamed);
+          messages.scrollTop = messages.scrollHeight;
+        }
+        return streamed;
       });
-      let text = '';
-      for await (const chunk of stream) {
-        text += chunk.choices?.[0]?.delta?.content || '';
-        setMessageText(body, text);
-        messages.scrollTop = messages.scrollHeight;
-      }
-      if (!text.trim()) setMessageText(body, 'The local model returned no text. Try the prompt again.');
+      setMessageText(body, usableReply(text) ? text : fallback(prompt));
     } else {
       const chatMessages = [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-7)];
       setMessageText(body, 'Generating locally on this device…');
