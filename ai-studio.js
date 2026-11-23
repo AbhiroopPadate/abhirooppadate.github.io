@@ -7,6 +7,7 @@ let localPipe = null;
 let loading = false;
 let activeModel = null;
 let runtime = null;
+let promptInFlight = false;
 const history = [];
 
 const PUBLIC_CONTEXT = `You are Abhiroop Padate's local portfolio agent. You only know the public facts below. Never invent private information, contact details, passwords, files, browsing history, or unpublished personal data. If asked for private information, clearly say you do not have access to it. Be specific, useful, and honest about dates and DOI-pending work.
@@ -297,8 +298,26 @@ async function answer(prompt) {
     history.push({ role: 'assistant', content: body.textContent });
     setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : 'Local CPU model ready · private', 'ready');
   } catch (error) {
-    engine = null;
-    localPipe = null;
+    if (engine && !localPipe) {
+      engine = null;
+      try {
+        setStatus('Switching to private CPU fallback…', 'loading');
+        await initCpuModel();
+        const chatMessages = [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-7)];
+        const result = await localPipe(chatMessages, { max_new_tokens: 220, temperature: 0.35, do_sample: false, repetition_penalty: 1.08, return_full_text: false });
+        const generated = result?.[0]?.generated_text;
+        const reply = Array.isArray(generated) ? generated.at(-1)?.content : generated;
+        setMessageText(body, String(reply || '').trim() || 'The local model returned no text. Try the prompt again.');
+        history.push({ role: 'assistant', content: body.textContent });
+        setStatus('Local CPU model ready · private', 'ready');
+        return;
+      } catch (fallbackError) {
+        localPipe = null;
+      }
+    } else {
+      engine = null;
+      localPipe = null;
+    }
     setMessageText(body, 'The local model stopped before completing this response. Re-initialize it and try again; no prompt was sent to a server.');
     setStatus('Model stopped · re-initialize', 'warn');
     setChatEnabled(false);
@@ -312,9 +331,10 @@ async function answer(prompt) {
 
 function submitPrompt() {
   const prompt = input.value.trim();
-  if (!prompt || sendButton.disabled) return;
+  if (!prompt || sendButton.disabled || promptInFlight) return;
+  promptInFlight = true;
   input.value = '';
-  void answer(prompt);
+  void answer(prompt).finally(() => { promptInFlight = false; });
 }
 
 setChatEnabled(false);
