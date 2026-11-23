@@ -10,6 +10,8 @@ let runtime = null;
 let promptInFlight = false;
 const history = [];
 const GENERATION_TIMEOUT_MS = 18000;
+// The universal WASM path keeps the public demo responsive across browsers and GPUs.
+const ENABLE_WEBGPU = false;
 
 const PUBLIC_CONTEXT = `You are Abhiroop Padate's local portfolio agent. You only know the public facts below. Never invent private information, contact details, passwords, files, browsing history, or unpublished personal data. If asked for private information, clearly say you do not have access to it. Be specific, useful, and honest about dates and DOI-pending work.
 
@@ -234,7 +236,7 @@ async function initModel() {
   setStatus('Downloading local model…', 'loading');
   try {
     let webGpuError = null;
-    if (navigator.gpu) {
+    if (ENABLE_WEBGPU && navigator.gpu) {
       try {
         const adapter = await navigator.gpu.requestAdapter();
         if (!adapter) throw new Error('WebGPU is present but no compatible GPU adapter was found.');
