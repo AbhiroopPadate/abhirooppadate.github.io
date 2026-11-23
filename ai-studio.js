@@ -1,4 +1,4 @@
-const MODEL = 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC';
+const MODEL = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
 let engine = null;
 let loading = false;
 const history = [];
@@ -85,7 +85,6 @@ async function initModel() {
 
 async function answer(prompt) {
   addMessage('user', prompt);
-  const localPrompt = `${PUBLIC_CONTEXT}\n\nVisitor request: ${prompt}`;
   if (!engine) {
     addMessage('assistant', fallback(prompt));
     return;
@@ -93,7 +92,7 @@ async function answer(prompt) {
   sendButton.disabled = true;
   setStatus('Thinking locally…', 'loading');
   const body = addMessage('assistant', '');
-  history.push({ role: 'user', content: localPrompt });
+  history.push({ role: 'user', content: prompt });
   try {
     const stream = await engine.chat.completions.create({
       messages: [{ role: 'system', content: PUBLIC_CONTEXT }, ...history.slice(-6)],
@@ -110,6 +109,7 @@ async function answer(prompt) {
     history.push({ role: 'assistant', content: text });
     setStatus('Local model ready · private', 'ready');
   } catch (error) {
+    engine = null;
     body.textContent = fallback(prompt);
     setStatus('Recovered with demo knowledge', 'warn');
   } finally {
