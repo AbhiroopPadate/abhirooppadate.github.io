@@ -221,7 +221,7 @@ function setThinking(active) {
 async function initCpuModel() {
   setStatus('Preparing CPU fallback locally…', 'loading');
   if (!window.Worker) throw new Error('Web Workers are unavailable in this browser.');
-  cpuWorker = new Worker(`ai-worker.js?v=20261124-worker-v1`, { type: 'module' });
+  cpuWorker = new Worker(`ai-worker.js?v=20261124-worker-v2`, { type: 'module' });
   cpuWorker.onmessage = (event) => {
     const { type, id, report, reply, message } = event.data || {};
     if (type === 'progress') updateProgress(report);
@@ -238,7 +238,7 @@ async function initCpuModel() {
   cpuWorker.postMessage({ type: 'init' });
   await ready;
   localPipe = { worker: true };
-  activeModel = { label: 'Qwen 2.5 · 0.5B · WASM CPU fallback' };
+  activeModel = { label: 'SmolLM2 · 360M · WASM worker' };
   runtime = 'wasm';
 }
 

@@ -7,7 +7,7 @@ self.onmessage = async (event) => {
       const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers/+esm');
       env.allowLocalModels = false;
       env.useBrowserCache = true;
-      pipe = await pipeline('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct', {
+      pipe = await pipeline('text-generation', 'onnx-community/SmolLM2-360M-Instruct', {
         dtype: 'q4',
         progress_callback: (report) => self.postMessage({ type: 'progress', report })
       });
