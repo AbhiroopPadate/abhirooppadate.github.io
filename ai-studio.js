@@ -1,6 +1,10 @@
-const MODEL = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
+const MODELS = [
+  { id: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC', label: 'Qwen 2.5 · 0.5B · low-VRAM WebGPU' },
+  { id: 'LFM2.5-350M-q4f16_1-MLC', label: 'LFM 2.5 · 350M · ultra-low-VRAM WebGPU' }
+];
 let engine = null;
 let loading = false;
+let activeModel = null;
 const history = [];
 
 const PUBLIC_CONTEXT = `You are Abhiroop Padate's local portfolio agent. You only know the public facts below. Never invent private information, contact details, passwords, files, browsing history, or unpublished personal data. If asked for private information, clearly say you do not have access to it. Be specific, useful, and honest about dates and DOI-pending work.
@@ -32,6 +36,10 @@ closeButton.type = 'button';
 closeButton.setAttribute('aria-label', 'Close local AI agent');
 closeButton.textContent = '×';
 studio.prepend(closeButton);
+const agentProof = document.createElement('div');
+agentProof.className = 'ai-proof';
+agentProof.innerHTML = '<span>AGENT ARCHITECTURE</span><strong>Public context → skill routing → streamed local inference</strong><small>Built into the portfolio to demonstrate grounded responses, useful agent behaviors, and privacy by design.</small>';
+document.querySelector('.ai-studio-heading')?.append(agentProof);
 
 function setChatEnabled(enabled) {
   input.disabled = !enabled;
@@ -76,9 +84,9 @@ function fallback(prompt) {
 async function initModel() {
   if (engine || loading) return;
   if (!navigator.gpu) {
-    setStatus('WebGPU unavailable · initialize on a compatible browser', 'warn');
-    loadButton.textContent = 'WebGPU required ↗';
-    $('#ai-hint').textContent = 'This browser cannot run the local model. Prompts stay locked until WebGPU is available.';
+    setStatus('WebGPU unavailable · model locked', 'warn');
+    loadButton.textContent = 'Use Chrome or Edge with WebGPU ↗';
+    $('#ai-hint').textContent = 'This browser does not expose WebGPU, so the local model cannot start here. Prompts stay locked for privacy.';
     return;
   }
   loading = true;
@@ -86,24 +94,43 @@ async function initModel() {
   progress.hidden = false;
   setStatus('Downloading local model…', 'loading');
   try {
-    const { CreateMLCEngine } = await import('https://esm.run/@mlc-ai/web-llm');
-    engine = await CreateMLCEngine(MODEL, {
-      initProgressCallback: (report) => {
-        const value = Math.max(0, Math.min(100, Math.round((report.progress || 0) * 100)));
-        progress.querySelector('span').style.width = `${value}%`;
-        setStatus(value ? `Loading local model · ${value}%` : 'Loading local model…', 'loading');
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) throw new Error('WebGPU is present but no compatible GPU adapter was found.');
+    const { CreateMLCEngine } = await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm');
+    let lastError = null;
+    for (const candidate of MODELS) {
+      try {
+        setStatus(`Preparing ${candidate.label.split(' · ')[0]} locally…`, 'loading');
+        engine = await CreateMLCEngine(candidate.id, {
+          initProgressCallback: (report) => {
+            const value = Math.max(0, Math.min(100, Math.round((report.progress || 0) * 100)));
+            progress.querySelector('span').style.width = `${value}%`;
+            setStatus(value ? `Loading local model · ${value}%` : 'Loading local model…', 'loading');
+          }
+        });
+        activeModel = candidate;
+        break;
+      } catch (error) {
+        lastError = error;
+        engine = null;
       }
-    });
+    }
+    if (!engine) throw lastError || new Error('No local model could be initialized.');
+    $('#ai-model-label').textContent = activeModel.label;
     setStatus('Local model ready · private', 'ready');
     loadButton.textContent = 'Local model ready ✓';
     $('#ai-hint').textContent = 'Prompts stay on this device. The model is cached locally for your next visit.';
     setChatEnabled(true);
     input.focus();
   } catch (error) {
-    setStatus('Could not initialize · try again', 'warn');
+    const detail = String(error?.message || error || '').toLowerCase();
+    const memoryIssue = detail.includes('memory') || detail.includes('device was lost') || detail.includes('out of bounds');
+    setStatus(memoryIssue ? 'GPU memory limit · model locked' : 'Local runtime unavailable · model locked', 'warn');
     loadButton.disabled = false;
-    loadButton.textContent = 'Retry local model ↗';
-    $('#ai-hint').textContent = 'The model did not initialize. Prompts remain locked; try again with a WebGPU-enabled browser.';
+    loadButton.textContent = memoryIssue ? 'Retry with low-memory model ↗' : 'Retry local model ↗';
+    $('#ai-hint').textContent = memoryIssue
+      ? 'The GPU rejected the first model. A smaller fallback was attempted; close GPU-heavy tabs and retry in Chrome or Edge.'
+      : 'The local runtime could not start. Prompts remain locked; use a current Chrome or Edge build with WebGPU enabled.';
   } finally {
     loading = false;
     progress.hidden = true;
