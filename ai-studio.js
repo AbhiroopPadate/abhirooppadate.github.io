@@ -89,6 +89,16 @@ function updateProgress(report) {
   setStatus(value ? `Loading local model · ${value}%` : 'Loading local model…', 'loading');
 }
 
+function setThinking(active) {
+  progress.classList.toggle('is-thinking', active);
+  progress.hidden = !active;
+  if (active) {
+    progress.querySelector('span').style.width = '42%';
+  } else {
+    progress.querySelector('span').style.width = '0%';
+  }
+}
+
 async function initCpuModel() {
   const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers/+esm');
   env.allowLocalModels = false;
@@ -164,6 +174,7 @@ async function answer(prompt) {
   }
   sendButton.disabled = true;
   setStatus('Thinking locally…', 'loading');
+  setThinking(true);
   const body = addMessage('assistant', '');
   history.push({ role: 'user', content: prompt });
   try {
@@ -178,6 +189,7 @@ async function answer(prompt) {
       for await (const chunk of stream) {
         text += chunk.choices?.[0]?.delta?.content || '';
         body.textContent = text;
+        if (text) setThinking(false);
         messages.scrollTop = messages.scrollHeight;
       }
     } else {
@@ -185,6 +197,7 @@ async function answer(prompt) {
       body.textContent = 'Generating locally on this device…';
       const result = await localPipe(transcript, { max_new_tokens: 100, temperature: 0.35, do_sample: false, return_full_text: false });
       body.textContent = result?.[0]?.generated_text?.trim() || 'The local model returned no text. Try the prompt again.';
+      setThinking(false);
     }
     history.push({ role: 'assistant', content: body.textContent });
     setStatus(runtime === 'webgpu' ? 'Local model ready · WebGPU private' : 'Local CPU model ready · private', 'ready');
@@ -197,6 +210,7 @@ async function answer(prompt) {
     loadButton.disabled = false;
     loadButton.textContent = 'Re-initialize local model ↗';
   } finally {
+    setThinking(false);
     if (engine || localPipe) sendButton.disabled = false;
   }
 }
@@ -221,6 +235,12 @@ $('#ai-form').addEventListener('submit', (event) => {
 sendButton.addEventListener('click', (event) => {
   event.preventDefault();
   submitPrompt();
+});
+input.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    submitPrompt();
+  }
 });
 document.querySelectorAll('[data-ai-prompt]').forEach((button) => button.addEventListener('click', () => {
   $('#ai-input').value = button.dataset.aiPrompt;
